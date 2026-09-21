@@ -149,9 +149,40 @@ html,body{height:100%;overflow:hidden;background:var(--bg );color:var(--txt);fon
   50% { transform: translateX(-3%) translateY(2%) scale(1.05) rotate(1deg); }
   100% { transform: translateX(0) translateY(0) scale(1) rotate(0deg); }
 }
+/* 🟢 === بداية كود اليوم الوطني (للحذف لاحقاً) === 🟢 */
+.splash-screen {
+  position: fixed; inset: 0; background: linear-gradient(135deg, #004d26, #006c35);
+  z-index: 99999; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; transition: opacity 0.6s ease, visibility 0.6s ease;
+  text-align: center; padding: 20px;
+}
+.splash-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+.splash-img-container { width: 220px; height: 220px; margin-bottom: 30px; animation: floatSplash 3s ease-in-out infinite; }
+.splash-img { width: 100%; height: 100%; object-fit: contain; }
+.splash-title { font-size: 32px; font-weight: 700; color: #FFFFFF; margin-bottom: 10px; }
+.splash-sub { font-size: 16px; color: #E8C87A; font-weight: 500; }
+.skip-btn {
+  position: absolute; top: 20px; left: 20px; background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3); color: #FFF; padding: 6px 16px;
+  border-radius: 20px; font-size: 12px; cursor: pointer; font-family: 'Tajawal', sans-serif;
+}
+@keyframes floatSplash { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+/* 🔴 === نهاية كود اليوم الوطني === 🔴 */
+  
 </style>
 </head>
 <body>
+<!-- 🟢 === بداية كود اليوم الوطني (للحذف لاحقاً) === 🟢 -->
+<div id="nd-splash" class="splash-screen">
+  <button class="skip-btn" onclick="hideSplash()">تخطي</button>
+  <div class="splash-img-container">
+    <img src="https://i.ibb.co/BVBTq7Cd/3.png" alt="اليوم الوطني" class="splash-img">
+  </div>
+  <div class="splash-title">نحلم ونحقق 🇸🇦</div>
+  <div class="splash-sub">اليوم الوطني السعودي 96</div>
+</div>
+<!-- 🔴 === نهاية كود اليوم الوطني === 🔴 -->
+  
 <div class="app" id="app">
 <!-- ════ HOME ════ -->
 <div class="screen active" id="s-home">
@@ -765,6 +796,20 @@ html,body{height:100%;overflow:hidden;background:var(--bg );color:var(--txt);fon
  
 <script>
 'use strict';
+ // 🟢 === بداية كود اليوم الوطني (للحذف لاحقاً) === 🟢
+let splashTimeout;
+function hideSplash() {
+  const splash = document.getElementById('nd-splash');
+  if (splash) {
+    splash.classList.add('hidden');
+    clearTimeout(splashTimeout);
+  }
+}
+document.addEventListener("DOMContentLoaded", () => {
+  splashTimeout = setTimeout(hideSplash, 5000);
+});
+// 🔴 === نهاية كود اليوم الوطني === 🔴
+ 
 const tg = window.Telegram?.WebApp;
 if(tg){tg.ready();tg.expand();tg.setHeaderColor('#0D0D0D');tg.setBackgroundColor('#0D0D0D')}
 const API = '/api';
