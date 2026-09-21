@@ -1047,13 +1047,18 @@ function submitUrgent(){
   if(!f){if(tg && tg.showAlert) tg.showAlert('⚠️ أدخل موقع الانطلاق');return}
   if(!t){if(tg && tg.showAlert) tg.showAlert('⚠️ أدخل الوجهة');return}
 
+  // 💡 ترجمة نوع السيارة ليفهمها كود البايثون الخاص بك
+  let mappedCarType = 'سيارة صغيرة';
+  if(ST.car === 'comfort') mappedCarType = 'سيارة عائلية';
+  if(ST.car === 'vip') mappedCarType = 'VIP';
+
   const payload = {
     trip_type: 'trip_urgent',
     from_location_text: f,
     to_location_text: t,
     from_latitude: ST.lat,
     from_longitude: ST.lng,
-    car_type: ST.car,
+    vehicle_type: mappedCarType, // تم تعديل الاسم ليتطابق مع البايثون
     details: document.getElementById('notes-inp').value || 'لا يوجد'
   };
 
