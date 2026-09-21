@@ -726,7 +726,26 @@ html,body{height:100%;overflow:hidden;background:var(--bg );color:var(--txt);fon
   </div>
 </div>
  
+<!-- ════ SUCCESS SCREEN ════ -->
+<div class="screen" id="s-success">
+  <div style="padding:40px 20px; text-align:center; display:flex; flex-direction:column; height:100%; justify-content:center;">
+    <div style="font-size:70px; margin-bottom:20px; animation: flt 2.5s ease-in-out infinite;">🚕</div>
+    <h2 style="color:var(--gold); margin-bottom:15px;">تم إرسال طلبك بنجاح!</h2>
+    <p style="color:var(--txt); font-size:15px; line-height:1.6; margin-bottom:20px;">
+      عزيزي العميل، يرجى <strong>الانتظار في البوت</strong> لاستقبال عروض وأسعار السائقين.
+    </p>
+    <div style="background:rgba(231,76,60,.1); border:1px solid rgba(231,76,60,.3); padding:15px; border-radius:12px; margin-bottom:30px;">
+      <p style="color:var(--red); font-size:13px; font-weight:bold; line-height:1.5;">
+        ⚠️ تنبيه هام: إذا خرجت من البوت أو أهملت الرسائل، فلن تتمكن من رؤية أسعار السائقين وقد يتم إلغاء طلبك.
+      </p>
+    </div>
+    <p style="color:var(--txt2); font-size:12px; margin-bottom:30px;">شاكرين صبرك وتعاونك معنا، ونتمنى لك رحلة طيبة 🌹</p>
+    <button class="btn-p" onclick="tg.close()">العودة للبوت لانتظار العروض 🔙</button>
+  </div>
 </div>
+
+</div> <!-- قفلة التطبيق الرئيسية -->
+
 <div id="toast"></div>
  
 <script>
@@ -748,7 +767,7 @@ const STATUSES=[
 ];
 const RLABELS=['','سيء جداً 😤','سيء 😕','مقبول 😐','جيد 😊','ممتاز جداً 🌟'];
  
-// greeting
+startRadar
 const hr=new Date().getHours();
 document.getElementById('home-greet').textContent=hr<12?'صباح الخير 👋':hr<17?'مساء الخير 👋':'مساء النور 👋';
  
