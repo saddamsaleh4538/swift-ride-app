@@ -934,13 +934,23 @@ function dailyNext(){
   if(D.step===2){const v=document.getElementById('d-to').value.trim();if(!v){if(tg && tg.showAlert) tg.showAlert('⚠️ أدخل الوجهة');return}D.to=v}
   if(D.step===3){
     if(!D.dir){if(tg && tg.showAlert) tg.showAlert('⚠️ اختر نوع الرحلة');return}
+    
+    // 💡 التعديل الذكي: تغيير السؤال بناءً على اختيار العميل
+    const titleEl = document.querySelector('#d4 .card div:nth-child(1)');
+    const descEl = document.querySelector('#d4 .card div:nth-child(2)');
+    const inputEl = document.getElementById('d-time');
+    
     if(D.dir === 'ذهاب وعودة') {
-      document.querySelector('#d4 .card div').textContent = '⏰ متى وقت الذهاب والعودة؟ (مثال: الذهاب 7ص والعودة 2م)';
+      titleEl.textContent = '⏰ متى وقت الذهاب والعودة؟';
+      descEl.textContent = 'مثال: الذهاب 7:00 ص والعودة 2:00 م';
+      inputEl.placeholder = 'اكتب وقت الذهاب والعودة هنا...';
     } else {
-      document.querySelector('#d4 .card div').textContent = '⏰ متى وقت الذهاب؟';
+      titleEl.textContent = '⏰ متى وقت الذهاب؟';
+      descEl.textContent = 'مثال: الآن — أو 7:00 صباحاً — أو 5:00 م';
+      inputEl.placeholder = 'وقت الذهاب...';
     }
   }
-  if(D.step===4){const v=document.getElementById('d-time').value.trim();if(!v){if(tg && tg.showAlert) tg.showAlert('⚠️ أدخل وقت الذهاب');return}D.time=v}
+  if(D.step===4){const v=document.getElementById('d-time').value.trim();if(!v){if(tg && tg.showAlert) tg.showAlert('⚠️ أدخل الوقت');return}D.time=v}
   if(D.step===5){D.pax=parseInt(document.getElementById('d-pax').textContent)||1}
   if(D.step===6&&!D.bag){if(tg && tg.showAlert) tg.showAlert('⚠️ اختر إجابة الحقائب');return}
   if(D.step===7&&!D.gen){if(tg && tg.showAlert) tg.showAlert('⚠️ اختر تفضيل السائق');return}
