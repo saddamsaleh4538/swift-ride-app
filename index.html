@@ -1035,21 +1035,23 @@ function submitWizard(wiz){
         user_id: ST.userId, 
         trip_type: 'trip_weekly', 
         from_location_text: from, 
-        to_location_name: to, // 💡 تم التصحيح ليفهمها البوت
+        to_location_name: to, 
         from_location_gps: gps_loc, 
-        trip_time: D.time, 
-        return_time: D.returnTime || '', 
+        pickup_time: D.time, // 💡 وقت الذهاب
+        work_start: 'لا ينطبق (مشوار يومي)', // 💡 تعبئة الفراغ
+        return_time: D.returnTime || 'لا يوجد', // 💡 وقت العودة
+        schedule_type: D.dir, // 💡 ذهاب فقط أو ذهاب وعودة
+        days_count: 'يومي', // 💡 تعبئة الفراغ
         passengers_count: D.pax, 
         gender_preference: D.gen, 
-        has_luggage: D.bag === 'نعم' ? 'نعم' : 'لا', 
-        trip_direction: D.dir,
-        order_details: "رحلة يومية/أسبوعية" // 💡 تم التصحيح
+        driver_nationality: 'لا يهم',
+        order_details: "عفش/حقائب: " + (D.bag === 'نعم' ? 'نعم' : 'لا')
       }
     : {
         user_id: ST.userId, 
         trip_type: 'trip_monthly', 
         from_location_text: from, 
-        to_location_name: to, // 💡 تم التصحيح
+        to_location_name: to, 
         from_location_gps: gps_loc, 
         pickup_time: M.pickup, 
         work_start: M.wstart, 
@@ -1059,7 +1061,7 @@ function submitWizard(wiz){
         passengers_count: M.pax, 
         gender_preference: M.gen, 
         driver_nationality: M.nat, 
-        order_details: M.notes // 💡 تم التصحيح
+        order_details: M.notes
       };
 
   window.finalPayload = JSON.stringify(payload);
