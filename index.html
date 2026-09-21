@@ -15,7 +15,7 @@
   --green:#2ECC71;--red:#E74C3C;--r:14px;--r2:10px;
 }
 html,body{height:100%;overflow:hidden;background:var(--bg );color:var(--txt);font-family:'Tajawal',sans-serif;direction:rtl;-webkit-tap-highlight-color:transparent;user-select:none}
-..app{width:100%;max-width:430px;margin:0 auto;height:100vh;height:var(--tg-viewport-height, 100vh);display:flex;flex-direction:column;position:relative;overflow:hidden}
+.app{width:100%;max-width:430px;margin:0 auto;height:100vh;display:flex;flex-direction:column;position:relative;overflow:hidden}
 .screen{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transform:translateY(28px);transition:all .38s cubic-bezier(.4,0,.2,1)}
 .screen.active{opacity:1;pointer-events:all;transform:translateY(0)}
 .screen.out{opacity:0;transform:translateY(-18px);pointer-events:none}
@@ -265,9 +265,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg );color:var(--txt);fon
     </div>
     <span class="slabel">🚘 نوع السيارة</span>
     <div class="car-types">
-      <div class="ct sel" onclick="selCar(this,'سيارة صغيرة')"><span class="ct-icon">🚗</span><div class="ct-name">صغيرة</div><div class="ct-price">أرخص</div></div>
-      <div class="ct" onclick="selCar(this,'سيارة عائلية')"><span class="ct-icon">🚙</span><div class="ct-name">عائلية</div><div class="ct-price">مريحة</div></div>
-      <div class="ct" onclick="selCar(this,'لا يهم')"><span class="ct-icon">🤷‍♂️</span><div class="ct-name">لا يهم</div><div class="ct-price">أسرع</div></div>
+      <div class="ct sel" onclick="selCar(this,'economy')"><span class="ct-icon">🚗</span><div class="ct-name">اقتصادية</div><div class="ct-price">أرخص</div></div>
+      <div class="ct" onclick="selCar(this,'comfort')"><span class="ct-icon">🚙</span><div class="ct-name">مريحة</div><div class="ct-price">معتدل</div></div>
+      <div class="ct" onclick="selCar(this,'vip')"><span class="ct-icon">🏎️</span><div class="ct-name">VIP</div><div class="ct-price">فاخر</div></div>
     </div>
     <span class="slabel">📝 ملاحظات</span>
     <div class="inp-wrap"><span class="inp-icon">💬</span><input id="notes-inp" placeholder="مثال: عندي حقيبة..."></div>
@@ -326,7 +326,12 @@ html,body{height:100%;overflow:hidden;background:var(--bg );color:var(--txt);fon
         
         <div class="inp-wrap" style="margin-bottom:12px"><span class="inp-icon">🕐</span><input id="d-time" placeholder="وقت الذهاب..."></div>
         
-        <!-- أزرار وقت الذهاب -->
+        <!-- حقل وقت العودة (يظهر فقط إذا اختار ذهاب وعودة) -->
+        <div id="return-time-container" style="display:none;">
+          <div style="font-size:14px;font-weight:700;color:var(--txt);margin-bottom:6px;margin-top:16px;">⏳ متى وقت العودة؟</div>
+          <div class="inp-wrap" style="margin-bottom:12px"><span class="inp-icon">🕑</span><input id="d-return-time" placeholder="وقت العودة..."></div>
+        </div>
+
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <div class="time-chip" onclick="document.getElementById('d-time').value='الآن'">الآن</div>
           <div class="time-chip" onclick="document.getElementById('d-time').value='6:00 صباحاً'">6:00 ص</div>
@@ -335,23 +340,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg );color:var(--txt);fon
           <div class="time-chip" onclick="document.getElementById('d-time').value='12:00 ظهراً'">12:00 ظ</div>
           <div class="time-chip" onclick="document.getElementById('d-time').value='5:00 م'">5:00 م</div>
         </div>
-
-        <!-- حقل وقت العودة (يظهر فقط إذا اختار ذهاب وعودة) -->
-        <div id="return-time-container" style="display:none;">
-          <div style="font-size:14px;font-weight:700;color:var(--txt);margin-bottom:6px;margin-top:16px;">⏳ متى وقت العودة؟</div>
-          <div class="inp-wrap" style="margin-bottom:12px"><span class="inp-icon">🕑</span><input id="d-return-time" placeholder="وقت العودة..."></div>
-          
-          <!-- أزرار وقت العودة المستقلة -->
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <div class="time-chip" onclick="document.getElementById('d-return-time').value='12:00 ظهراً'">12:00 ظ</div>
-            <div class="time-chip" onclick="document.getElementById('d-return-time').value='1:00 ظهراً'">1:00 ظ</div>
-            <div class="time-chip" onclick="document.getElementById('d-return-time').value='2:00 ظهراً'">2:00 ظ</div>
-            <div class="time-chip" onclick="document.getElementById('d-return-time').value='3:00 عصراً'">3:00 ع</div>
-            <div class="time-chip" onclick="document.getElementById('d-return-time').value='4:00 عصراً'">4:00 ع</div>
-            <div class="time-chip" onclick="document.getElementById('d-return-time').value='5:00 م'">5:00 م</div>
-          </div>
-        </div>
-
+      </div>
+    </div>
     <!-- D5: عدد الأشخاص -->
     <div id="d5" class="wstep" style="display:none">
       <div class="card" style="margin-top:8px">
@@ -776,9 +766,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg );color:var(--txt);fon
 <script>
 'use strict';
 const tg = window.Telegram?.WebApp;
-if(tg){   tg.ready();   tg.expand();   tg.setHeaderColor('#0D0D0D');   tg.setBackgroundColor('#0D0D0D');   document.documentElement.style.setProperty('--tg-viewport-height', tg.viewportHeight + 'px');   tg.onEvent('viewportChanged', function() {     document.documentElement.style.setProperty('--tg-viewport-height', tg.viewportHeight + 'px');   }); }
+if(tg){tg.ready();tg.expand();tg.setHeaderColor('#0D0D0D');tg.setBackgroundColor('#0D0D0D')}
 const API = '/api';
-const ST = {car:'سيارة صغيرة',tripId:null,userId:tg?.initDataUnsafe?.user?.id||0,lat:null,lng:null,
+const ST = {car:'economy',tripId:null,userId:tg?.initDataUnsafe?.user?.id||0,lat:null,lng:null,
             tripStatus:1,stars:0,dname:'',dcar:'',dplate:'',dprice:''};
 const D  = {step:1,total:7,from:'',to:'',dir:'',time:'',pax:1,bag:'',gen:''};
 const M  = {step:1,total:10,home:'',work:'',pickup:'',wstart:'',wend:'',sched:'',days:5,pax:1,gen:'',nat:'',notes:''};
@@ -1030,7 +1020,7 @@ function monthlyNext(){
   M.step++;wShow('monthly',M.step);
 }
  
-// ── SUBMIT WIZARD (يومي / شهري) ────────────────────────────────
+// ── SUBMIT WIZARD ────────────────────────────────
 function submitWizard(wiz){
   const btnId = wiz==='daily'?'d-next-btn':'m-next-btn';
   const btn=document.getElementById(btnId);
@@ -1038,45 +1028,17 @@ function submitWizard(wiz){
   btn.disabled=true;btn.textContent='⏳ جاري التجهيز...';
   const from = wiz==='daily'?D.from:M.home;
   const to   = wiz==='daily'?D.to:M.work;
-  const gps_loc = ST.lat + "," + ST.lng; // دمج الإحداثيات كما يفهمها البوت
 
   const payload = wiz==='daily'
-    ? {
-        user_id: ST.userId, 
-        trip_type: 'trip_weekly', 
-        from_location_text: from, 
-        to_location_name: to, 
-        from_location_gps: gps_loc, 
-        trip_time: D.time, 
-        return_time: D.returnTime || '', 
-        passengers_count: D.pax, 
-        gender_preference: D.gen, 
-        has_luggage: D.bag, // يرسل 'نعم' أو 'لا'
-        order_details: "رحلة يومية/أسبوعية"
-      }
-    : {
-        user_id: ST.userId, 
-        trip_type: 'trip_monthly', 
-        from_location_text: from, 
-        to_location_name: to, 
-        from_location_gps: gps_loc, 
-        pickup_time: M.pickup, 
-        work_start: M.wstart, 
-        return_time: M.wend, 
-        schedule_type: M.sched, 
-        days_count: M.days, 
-        passengers_count: M.pax, 
-        gender_preference: M.gen, 
-        driver_nationality: M.nat, 
-        order_details: M.notes
-      };
+    ? {user_id:ST.userId, trip_type:'trip_weekly', from_location_text:from, to_location_text:to, from_latitude:ST.lat, from_longitude:ST.lng, trip_time:D.time, return_time:D.returnTime||'', passengers_count:D.pax, gender_preference:D.gen, has_luggage:D.bag==='نعم', trip_direction:D.dir}
+    : {user_id:ST.userId, trip_type:'trip_monthly', from_location_text:from, to_location_text:to, from_latitude:ST.lat, from_longitude:ST.lng, pickup_time:M.pickup, work_start:M.wstart, return_time:M.wend, schedule_type:M.sched, days_count:M.days, passengers_count:M.pax, gender_preference:M.gen, driver_nationality:M.nat, details:M.notes};
 
   window.finalPayload = JSON.stringify(payload);
   goTo('success');
   btn.disabled=false;
 }
 
-// ── SUBMIT URGENT (فوري) ────────────────────────────────
+// ── SUBMIT URGENT ────────────────────────────────
 function submitUrgent(){
   const f=document.getElementById('from-inp').value.trim();
   const t=document.getElementById('to-inp').value.trim();
@@ -1088,19 +1050,20 @@ function submitUrgent(){
   if(!f){if(tg && tg.showAlert) tg.showAlert('⚠️ أدخل موقع الانطلاق');return}
   if(!t){if(tg && tg.showAlert) tg.showAlert('⚠️ أدخل الوجهة');return}
 
-  const gps_loc = ST.lat + "," + ST.lng;
+  // 💡 ترجمة نوع السيارة ليفهمها كود البايثون الخاص بك
+  let mappedCarType = 'سيارة صغيرة';
+  if(ST.car === 'comfort') mappedCarType = 'سيارة عائلية';
+  if(ST.car === 'vip') mappedCarType = 'VIP';
 
   const payload = {
     user_id: ST.userId,
     trip_type: 'trip_urgent',
     from_location_text: f,
-    to_location_name: t,
-    from_location_gps: gps_loc,
-    vehicle_type: ST.car, // يرسل 'سيارة صغيرة' أو 'سيارة عائلية' أو 'لا يهم'
-    gender_preference: 'لا يهم', // افتراضي للفوري ما لم تضف زر اختيار
-    has_luggage: 'لا',
-    passengers_count: 1,
-    order_details: document.getElementById('notes-inp').value || 'لا يوجد'
+    to_location_text: t,
+    from_latitude: ST.lat,
+    from_longitude: ST.lng,
+    vehicle_type: mappedCarType, // تم تعديل الاسم ليتطابق مع البايثون
+    details: document.getElementById('notes-inp').value || 'لا يوجد'
   };
 
   window.finalPayload = JSON.stringify(payload);
