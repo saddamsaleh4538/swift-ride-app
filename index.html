@@ -902,48 +902,40 @@ function monthlyNext(){
 }
  
 // ── SUBMIT WIZARD ────────────────────────────────
-async function submitWizard(wiz){
+function submitWizard(wiz){
   const btnId = wiz==='daily'?'d-next-btn':'m-next-btn';
   const btn=document.getElementById(btnId);
   btn.disabled=true;btn.textContent='⏳ جاري الإرسال...';
   const from = wiz==='daily'?D.from:M.home;
   const to   = wiz==='daily'?D.to:M.work;
-  document.getElementById('r-from').textContent=from;
-  document.getElementById('r-to').textContent=to;
-  goTo('radar');startRadar();
+  
   const payload = wiz==='daily'
-    ? {user_id:ST.userId,trip_type:'trip_daily',from_location_text:from,to_location_text:to,from_latitude:ST.lat,from_longitude:ST.lng,trip_time:D.time,passengers_count:D.pax,gender_preference:D.gen,has_luggage:D.bag==='نعم',trip_direction:D.dir}
-    : {user_id:ST.userId,trip_type:'trip_monthly',from_location_text:from,to_location_text:to,from_latitude:ST.lat,from_longitude:ST.lng,pickup_time:M.pickup,work_start:M.wstart,return_time:M.wend,schedule_type:M.sched,days_count:M.days,passengers_count:M.pax,gender_preference:M.gen,driver_nationality:M.nat,details:M.notes};
-  try{
-    const res=await fetch(API+'/request_trip',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    const d=await res.json();
-    if(d.trip_id){ST.tripId=d.trip_id;startPolling(d.trip_id)}
-  }catch(e){
-    toast('⚠️ وضع المحاكاة: جاري جلب عروض وهمية');
-    ST.tripId = 999; 
-    setTimeout(() => goTo('offers'), 3000);
-  }
-  btn.disabled=false;
+    ? {trip_type:'trip_weekly', from_location_text:from, to_location_text:to, from_latitude:ST.lat, from_longitude:ST.lng, trip_time:D.time, passengers_count:D.pax, gender_preference:D.gen, has_luggage:D.bag==='نعم', trip_direction:D.dir}
+    : {trip_type:'trip_monthly', from_location_text:from, to_location_text:to, from_latitude:ST.lat, from_longitude:ST.lng, pickup_time:M.pickup, work_start:M.wstart, return_time:M.wend, schedule_type:M.sched, days_count:M.days, passengers_count:M.pax, gender_preference:M.gen, driver_nationality:M.nat, details:M.notes};
+  
+  tg.sendData(JSON.stringify(payload));
+  tg.close();
 }
  
 // ── SUBMIT URGENT ────────────────────────────────
-async function submitUrgent(){
+function submitUrgent(){
   const f=document.getElementById('from-inp').value.trim();
   const t=document.getElementById('to-inp').value.trim();
   if(!f){toast('⚠️ أدخل موقع الانطلاق');return}
   if(!t){toast('⚠️ أدخل الوجهة');return}
-  document.getElementById('r-from').textContent=f;
-  document.getElementById('r-to').textContent=t;
-  goTo('radar');startRadar();
-  try{
-    const res=await fetch(API+'/request_trip',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:ST.userId,trip_type:'trip_urgent',from_location_text:f,to_location_text:t,from_latitude:ST.lat,from_longitude:ST.lng,car_type:ST.car,details:document.getElementById('notes-inp').value||null})});
-    const d=await res.json();
-    if(d.trip_id){ST.tripId=d.trip_id;startPolling(d.trip_id)}
-  }catch(e){
-    toast('⚠️ وضع المحاكاة: جاري جلب عروض وهمية');
-    ST.tripId = 999; 
-    setTimeout(() => goTo('offers'), 3000);
-  }
+  
+  const payload = {
+    trip_type: 'trip_urgent',
+    from_location_text: f,
+    to_location_text: t,
+    from_latitude: ST.lat,
+    from_longitude: ST.lng,
+    car_type: ST.car,
+    details: document.getElementById('notes-inp').value || 'لا يوجد'
+  };
+  
+  tg.sendData(JSON.stringify(payload));
+  tg.close();
 }
  
 // ── RADAR ─────────────────────────────────────────
