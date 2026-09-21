@@ -935,9 +935,10 @@ function dailyNext(){
   if(D.step===3){
     if(!D.dir){if(tg && tg.showAlert) tg.showAlert('⚠️ اختر نوع الرحلة');return}
     
-    // 💡 التعديل الذكي: تغيير السؤال بناءً على اختيار العميل
-    const titleEl = document.querySelector('#d4 .card div:nth-child(1)');
-    const descEl = document.querySelector('#d4 .card div:nth-child(2)');
+    // 💡 التعديل الذكي المضمون 100%
+    const cardD4 = document.querySelector('#d4 .card');
+    const titleEl = cardD4.children[0];
+    const descEl = cardD4.children[1];
     const inputEl = document.getElementById('d-time');
     
     if(D.dir === 'ذهاب وعودة') {
@@ -962,9 +963,18 @@ function dailyNext(){
     document.getElementById('ds-pax').textContent=D.pax+' شخص';
     document.getElementById('ds-bag').textContent=D.bag;
     document.getElementById('ds-gen').textContent=D.gen;
+    
+    // تعديل ملخص الطلب ليتناسب مع الاختيار
+    const summaryTimeLabel = document.getElementById('ds-time').previousElementSibling;
+    if(D.dir === 'ذهاب وعودة') {
+      summaryTimeLabel.textContent = 'وقت الذهاب والعودة';
+    } else {
+      summaryTimeLabel.textContent = 'وقت الذهاب';
+    }
   }
   D.step++;wShow('daily',D.step);
 }
+
  
 // ── MONTHLY NEXT ─────────────────────────────────
 function monthlyNext(){
