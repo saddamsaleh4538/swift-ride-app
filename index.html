@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Swift Ride</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0D0D0D;--bg2:#161616;--bg3:#1E1E1E;
+  --gold:#C8A45A;--gold2:#E8C87A;--gold3:#8A6A2A;
+  --txt:#F0EAD8;--txt2:#9A9080;--txt3:#5A5248;
+  --green:#2ECC71;--red:#E74C3C;--r:14px;--r2:10px;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg );color:var(--txt);font-family:'Tajawal',sans-serif;direction:rtl;-webkit-tap-highlight-color:transparent;user-select:none}
+.app{width:100%;max-width:430px;margin:0 auto;height:100vh;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transform:translateY(28px);transition:all .38s cubic-bezier(.4,0,.2,1)}
+.screen.active{opacity:1;pointer-events:all;transform:translateY(0)}
+.screen.out{opacity:0;transform:translateY(-18px);pointer-events:none}
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:0 16px 32px;-webkit-overflow-scrolling:touch}
+::-webkit-scrollbar{width:2px}::-webkit-scrollbar-thumb{background:var(--gold3);border-radius:2px}
+.topbar{padding:18px 18px 10px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:11px;letter-spacing:4px;color:var(--gold);opacity:.85;text-transform:uppercase}
+.back-btn{background:none;border:none;color:var(--gold);font-size:24px;cursor:pointer;padding:4px 8px;line-height:1}
+.menu-btn{width:36px;height:36px;border-radius:10px;background:var(--bg3);border:1px solid rgba(200,164,90,.15);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer}
+.menu-dot{height:1.5px;background:var(--txt2);border-radius:2px}
+/* progress */
+.prog-wrap{height:3px;background:rgba(200,164,90,.1);border-radius:2px;margin-bottom:16px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold3),var(--gold2));border-radius:2px;transition:width .4s}
+/* cards */
+.card{background:var(--bg2);border:1px solid rgba(200,164,90,.12);border-radius:var(--r);padding:16px;margin-bottom:10px}
+.card-gold{background:linear-gradient(135deg,#151000,#1C1600);border-color:rgba(200,164,90,.3)}
+/* stats */
+.stats{display:flex;gap:8px;margin-bottom:14px}
+.stat{flex:1;background:var(--bg2);border:1px solid rgba(200,164,90,.1);border-radius:var(--r2);padding:12px 8px;text-align:center}
+.stat-val{font-size:20px;font-weight:700;color:var(--gold)}
+.stat-lbl{font-size:10px;color:var(--txt2);margin-top:2px}
+/* home buttons */
+.qgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.qbtn{background:var(--bg2);border:1px solid rgba(200,164,90,.12);border-radius:var(--r);padding:16px 14px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.qbtn::before{content:'';position:absolute;top:0;right:0;width:50px;height:50px;background:radial-gradient(circle at top right,rgba(200,164,90,.07),transparent 70%)}
+.qbtn:active{transform:scale(.97);border-color:var(--gold)}
+.qbtn.full{grid-column:span 2;display:flex;align-items:center;gap:14px;padding:18px 16px;background:linear-gradient(135deg,#181200,#1C1600);border-color:rgba(200,164,90,.4)}
+.q-icon{font-size:28px;display:block;margin-bottom:8px}
+.q-lbl{font-size:13px;font-weight:700;color:var(--txt)}
+.q-sub{font-size:11px;color:var(--txt2);margin-top:3px}
+.vip-badge{background:var(--gold);color:#0D0D0D;font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.5px;display:inline-block;margin-bottom:6px}
+/* active chip */
+.active-chip{margin:0 0 12px;background:linear-gradient(135deg,#0F1800,#141E00);border:1px solid rgba(46,204,113,.25);border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer}
+/* section label */
+.slabel{font-size:10px;font-weight:700;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;display:block}
+/* inputs */
+.inp-wrap{background:var(--bg2);border:1px solid rgba(200,164,90,.15);border-radius:var(--r2);display:flex;align-items:center;gap:10px;padding:13px 14px;margin-bottom:10px;transition:border-color .2s}
+.inp-wrap:focus-within{border-color:rgba(200,164,90,.5)}
+.inp-wrap input{flex:1;background:none;border:none;outline:none;font-family:'Tajawal',sans-serif;font-size:14px;color:var(--txt);caret-color:var(--gold)}
+.inp-wrap input::placeholder{color:var(--txt3)}
+.inp-icon{font-size:16px;flex-shrink:0}
+/* dot chain */
+.dot-chain{display:flex;flex-direction:column;align-items:center;gap:3px;padding:14px 0;flex-shrink:0}
+.dot-o{width:10px;height:10px;border-radius:50%;border:2px solid var(--gold3)}
+.dot-line{width:1.5px;height:26px;background:linear-gradient(180deg,var(--gold3),var(--gold))}
+.dot-f{width:10px;height:10px;border-radius:50%;background:var(--gold)}
+/* car types */
+.car-types{display:flex;gap:8px;margin-bottom:14px}
+.ct{flex:1;background:var(--bg2);border:2px solid rgba(200,164,90,.1);border-radius:var(--r2);padding:12px 6px;text-align:center;cursor:pointer;transition:all .2s}
+.ct.sel,.ct:active{border-color:var(--gold);background:rgba(200,164,90,.07)}
+.ct-icon{font-size:22px;display:block;margin-bottom:4px}
+.ct-name{font-size:11px;font-weight:700;color:var(--txt)}
+.ct-price{font-size:10px;color:var(--gold);margin-top:2px}
+/* choice buttons */
+.choice-btn{background:var(--bg3);border:1px solid rgba(200,164,90,.15);border-radius:12px;padding:15px 18px;font-size:14px;font-weight:700;color:var(--txt);cursor:pointer;transition:all .2s;text-align:center;font-family:'Tajawal',sans-serif}
+.choice-btn:active,.choice-btn.sel{border-color:var(--gold);background:rgba(200,164,90,.1);color:var(--gold)}
+/* time chips */
+.time-chip{background:var(--bg3);border:1px solid rgba(200,164,90,.15);border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;color:var(--txt2);cursor:pointer;transition:all .2s;font-family:'Tajawal',sans-serif}
+.time-chip:active{border-color:var(--gold);color:var(--gold)}
+/* gps button */
+.gps-btn{width:100%;background:rgba(200,164,90,.08);border:2px dashed rgba(200,164,90,.35);border-radius:10px;padding:13px;color:var(--gold);font-family:'Tajawal',sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:10px;transition:all .2s}
+.gps-btn.done{border-color:var(--green);color:var(--green);background:rgba(46,204,113,.06)}
+/* info rows */
+.irow{display:flex;align-items:center;gap:10px;background:var(--bg3);border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:13px}
+.irow .lbl{color:var(--txt2);flex:1}
+.irow .val{color:var(--txt);font-weight:600;text-align:left;font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* pill */
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700}
+.pill.s{background:rgba(200,164,90,.1);color:var(--gold);border:1px solid rgba(200,164,90,.25)}
+.pill.a{background:rgba(46,204,113,.1);color:var(--green);border:1px solid rgba(46,204,113,.25)}
+.blink{width:6px;height:6px;border-radius:50%;background:currentColor;animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+/* bottom */
+.bottom{padding:12px 16px;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px));flex-shrink:0;border-top:1px solid rgba(200,164,90,.07)}
+/* buttons */
+.btn-p{width:100%;background:linear-gradient(135deg,var(--gold2),var(--gold),var(--gold3));border:none;border-radius:var(--r);padding:16px;color:#0D0D0D;font-family:'Tajawal',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 4px 20px rgba(200,164,90,.28)}
+.btn-p:active{transform:scale(.98)}
+.btn-p:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+.btn-s{width:100%;background:none;border:1px solid rgba(200,164,90,.3);border-radius:var(--r);padding:14px;color:var(--gold);font-family:'Tajawal',sans-serif;font-size:14px;cursor:pointer;transition:all .2s}
+.btn-s:active{background:rgba(200,164,90,.07)}
+.btn-d{width:100%;background:none;border:1px solid rgba(231,76,60,.3);border-radius:var(--r);padding:13px;color:var(--red);font-family:'Tajawal',sans-serif;font-size:13px;cursor:pointer;transition:all .2s}
+/* pax counter */
+.pax-wrap{display:flex;align-items:center;justify-content:center;gap:24px;margin:8px 0 14px}
+.pax-btn{width:48px;height:48px;border-radius:50%;background:var(--bg3);border:1px solid rgba(200,164,90,.2);color:var(--gold);font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;font-family:'Tajawal',sans-serif}
+.pax-val{font-size:44px;font-weight:700;color:var(--gold);min-width:52px;text-align:center}
+/* radar */
+.radar-box{display:flex;flex-direction:column;align-items:center;padding:24px 20px 18px}
+/* offers */
+.offer{background:var(--bg2);border:1px solid rgba(200,164,90,.15);border-radius:var(--r);padding:16px;margin-bottom:10px;position:relative;overflow:hidden}
+.offer::before{content:'';position:absolute;top:0;right:0;left:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold3),transparent)}
+.offer.best{background:linear-gradient(135deg,#151000,#1A1400);border-color:rgba(200,164,90,.4)}
+.best-tag{position:absolute;top:-1px;left:20px;background:var(--gold);color:#0D0D0D;font-size:9px;font-weight:700;padding:3px 10px;border-radius:0 0 8px 8px}
+.d-av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--gold3),var(--gold));display:flex;align-items:center;justify-content:center;font-size:19px;border:2px solid rgba(200,164,90,.3);flex-shrink:0}
+.btn-acc{width:100%;background:linear-gradient(135deg,var(--gold2),var(--gold));border:none;border-radius:10px;padding:12px;color:#0D0D0D;font-family:'Tajawal',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-acc:active{transform:scale(.98)}
+/* active trip */
+.trip-banner{margin:10px 16px 10px;background:var(--bg2);border:1px solid rgba(200,164,90,.2);border-radius:var(--r);padding:20px;text-align:center}
+.trip-icon{font-size:48px;display:block;margin-bottom:10px;animation:flt 2.5s ease-in-out infinite}
+@keyframes flt{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.drv{display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid rgba(200,164,90,.15);border-radius:var(--r);padding:14px;margin-bottom:10px}
+.drv-av{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--gold3),var(--gold));display:flex;align-items:center;justify-content:center;font-size:22px;border:2px solid rgba(200,164,90,.3);flex-shrink:0}
+.act-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.act-btn{background:var(--bg3);border:1px solid rgba(200,164,90,.1);border-radius:10px;padding:12px;text-align:center;cursor:pointer;transition:all .2s}
+.act-btn:active{border-color:var(--gold)}
+.act-icon{font-size:20px;display:block;margin-bottom:4px}
+.act-lbl{font-size:11px;color:var(--txt2);font-weight:600}
+/* timeline */
+.tl-step{display:flex;align-items:flex-start;gap:12px;margin-bottom:2px}
+.tl-left{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+.tl-dot{width:18px;height:18px;border-radius:50%;border:2px solid rgba(200,164,90,.2);background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--txt2);transition:all .4s}
+.tl-dot.done{background:var(--gold);border-color:var(--gold);color:#0D0D0D}
+.tl-dot.now{border-color:var(--gold);background:rgba(200,164,90,.12);animation:tlg 1.2s ease-in-out infinite}
+@keyframes tlg{0%,100%{box-shadow:0 0 0 0 rgba(200,164,90,.4)}50%{box-shadow:0 0 0 6px rgba(200,164,90,0)}}
+.tl-line{width:2px;height:30px;background:rgba(200,164,90,.1)}
+.tl-line.done{background:rgba(200,164,90,.4)}
+/* stars */
+.stars-row{display:flex;justify-content:center;gap:10px;margin:18px 0}
+.star{font-size:38px;cursor:pointer;filter:grayscale(1)opacity(.3);transition:all .2s}
+.star.on{filter:none;animation:spop .25s ease}
+@keyframes spop{0%{transform:scale(.8)}60%{transform:scale(1.3)}100%{transform:scale(1)}}
+/* toast */
+#toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%)translateY(20px);background:var(--bg3);border:1px solid rgba(200,164,90,.35);border-radius:24px;padding:10px 20px;font-size:13px;color:var(--txt);z-index:9999;opacity:0;transition:all .3s;white-space:nowrap;pointer-events:none;max-width:90vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%)translateY(0)}
+/* radar animations */
+@keyframes sweep{to{transform:rotate(360deg)}}
+@keyframes cpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.4)}}
+@keyframes blip{0%,100%{opacity:.15}50%{opacity:1}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+<!-- ════ HOME ════ -->
+<div class="screen active" id="s-home">
+  <div class="topbar">
+    <div class="logo">⚡ Swift Ride</div>
+    <div class="menu-btn" onclick="toast('⚙️ الإعدادات قريباً')">
+      <div class="menu-dot" style="width:14px"></div>
+      <div class="menu-dot" style="width:10px"></div>
+      <div class="menu-dot" style="width:6px"></div>
+    </div>
+  </div>
+  <div style="padding:4px 18px 14px;flex-shrink:0">
+    <div style="font-size:13px;color:var(--txt2);margin-bottom:4px" id="home-greet">أهلاً بك 👋</div>
+    <div style="font-size:27px;font-weight:700;line-height:1.2">إلى <span style="color:var(--gold)">أين</span> تريد  
+الذهاب اليوم؟</div>
+  </div>
+  <!-- car scene -->
+  <div style="padding:0 16px;margin-bottom:12px;flex-shrink:0">
+    <svg viewBox="0 0 368 118" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="72" width="368" height="46" fill="#141414"/>
+      <line x1="0" y1="95" x2="368" y2="95" stroke="#C8A45A" stroke-width="1.5" stroke-dasharray="22,16" opacity=".35"/>
+      <ellipse cx="140" cy="108" rx="58" ry="5" fill="#C8A45A" opacity=".07"/>
+      <rect x="80" y="62" width="118" height="34" rx="5" fill="#1C1C1C" stroke="#C8A45A" stroke-width=".7" stroke-opacity=".35"/>
+      <path d="M100 62 Q112 41 150 39 Q175 39 186 47 L196 62Z" fill="#1A1A1A" stroke="#C8A45A" stroke-width=".5" stroke-opacity=".25"/>
+      <path d="M106 61 Q114 46 149 44 L161 61Z" fill="#152030" opacity=".9"/>
+      <path d="M163 61 L184 51 L193 61Z" fill="#152030" opacity=".9"/>
+      <ellipse cx="199" cy="77" rx="5" ry="3.5" fill="#E8C87A" opacity=".85"/>
+      <ellipse cx="199" cy="77" rx="10" ry="6" fill="#E8C87A" opacity=".1"/>
+      <rect x="80" y="74" width="6" height="8" rx="2" fill="#E74C3C" opacity=".75"/>
+      <circle cx="110" cy="96" r="11" fill="#0F0F0F" stroke="#3A3A3A" stroke-width="1.5"/>
+      <circle cx="110" cy="96" r="5.5" fill="#1E1E1E" stroke="#C8A45A" stroke-width=".7" stroke-opacity=".45"/>
+      <circle cx="170" cy="96" r="11" fill="#0F0F0F" stroke="#3A3A3A" stroke-width="1.5"/>
+      <circle cx="170" cy="96" r="5.5" fill="#1E1E1E" stroke="#C8A45A" stroke-width=".7" stroke-opacity=".45"/>
+      <line x1="150" y1="62" x2="148" y2="96" stroke="#C8A45A" stroke-width=".5" stroke-opacity=".25"/>
+      <rect x="10" y="22" width="18" height="50" fill="#1A1A1A" opacity=".7" rx="1"/>
+      <rect x="33" y="34" width="22" height="38" fill="#181818" opacity=".6" rx="1"/>
+      <circle cx="312" cy="14" r="8" fill="#C8A45A"/>
+      <circle cx="312" cy="14" r="3" fill="#0D0D0D"/>
+      <line x1="312" y1="22" x2="312" y2="34" stroke="#C8A45A" stroke-width="2" stroke-linecap="round"/>
+      <path d="M210 78 Q255 58 298 32" stroke="#C8A45A" stroke-width="1.5" stroke-dasharray="5,5" fill="none" opacity=".35"/>
+      <rect x="265" y="10" width="54" height="18" rx="9" fill="#C8A45A" opacity=".1"/>
+      <text x="292" y="23" text-anchor="middle" fill="#C8A45A" font-size="10" font-family="Tajawal" font-weight="700">3.2 كم</text>
+    </svg>
+  </div>
+  <div class="scroll" style="padding-top:0">
+    <div class="active-chip" id="active-chip" style="display:none" onclick="goTo('active' )">
+      <span style="font-size:22px">🚗</span>
+      <div style="flex:1"><div style="font-size:13px;font-weight:700">رحلة نشطة</div><div class="pill a" style="margin-top:4px"><span class="blink"></span>جارٍ التنفيذ</div></div>
+      <span style="color:var(--gold);font-size:20px">←</span>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-val">47</div><div class="stat-lbl">رحلة مكتملة</div></div>
+      <div class="stat"><div class="stat-val">4.9</div><div class="stat-lbl">تقييمك</div></div>
+      <div class="stat"><div class="stat-val" id="drv-count">8</div><div class="stat-lbl">كباتن قريبون</div></div>
+    </div>
+    <div class="qgrid">
+      <div class="qbtn full" onclick="goToRequest('trip_urgent')">
+        <div>
+          <div class="vip-badge">فوري</div>
+          <div class="q-lbl" style="font-size:16px">مشوار فوري</div>
+          <div class="q-sub">كابتن يصلك خلال دقائق</div>
+        </div>
+        <span style="font-size:38px;margin-right:auto">🚕</span>
+      </div>
+      <div class="qbtn" onclick="goToRequest('trip_daily')">
+        <span class="q-icon">🗓️</span>
+        <div class="q-lbl">يومي</div>
+        <div class="q-sub">رحلة ثابتة كل يوم</div>
+      </div>
+      <div class="qbtn" onclick="goToRequest('trip_monthly')">
+        <span class="q-icon">📅</span>
+        <div class="q-lbl">شهري</div>
+        <div class="q-sub">سائق خاص بالشهر</div>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<!-- ════ REQUEST URGENT ════ -->
+<div class="screen" id="s-request">
+  <div class="topbar">
+    <button class="back-btn" onclick="goTo('home')">←</button>
+    <div class="logo">🚕 مشوار فوري</div>
+    <div style="width:36px"></div>
+  </div>
+  <div class="scroll">
+    <div class="prog-wrap"><div class="prog-fill" id="req-prog" style="width:50%"></div></div>
+    <span class="slabel">🗺️ مسار رحلتك</span>
+    <div class="card" style="padding:14px">
+      <div style="display:flex;gap:10px;align-items:stretch">
+        <div class="dot-chain"><div class="dot-o"></div><div class="dot-line"></div><div class="dot-f"></div></div>
+        <div style="flex:1">
+          <div class="inp-wrap" style="margin-bottom:10px"><span class="inp-icon">📍</span><input id="from-inp" placeholder="موقع الانطلاق..."></div>
+          <div class="inp-wrap" style="margin-bottom:0"><span class="inp-icon">🏁</span><input id="to-inp" placeholder="الوجهة... (حي، شارع، معلم)"></div>
+        </div>
+      </div>
+      <button class="gps-btn" id="gps-urgent-btn" onclick="getGPSFor('from-inp','urgent')">📍 استخدم موقعي الحالي (GPS)</button>
+    </div>
+    <span class="slabel">🚘 نوع السيارة</span>
+    <div class="car-types">
+      <div class="ct sel" onclick="selCar(this,'economy')"><span class="ct-icon">🚗</span><div class="ct-name">اقتصادية</div><div class="ct-price">أرخص</div></div>
+      <div class="ct" onclick="selCar(this,'comfort')"><span class="ct-icon">🚙</span><div class="ct-name">مريحة</div><div class="ct-price">معتدل</div></div>
+      <div class="ct" onclick="selCar(this,'vip')"><span class="ct-icon">🏎️</span><div class="ct-name">VIP</div><div class="ct-price">فاخر</div></div>
+    </div>
+    <span class="slabel">📝 ملاحظات</span>
+    <div class="inp-wrap"><span class="inp-icon">💬</span><input id="notes-inp" placeholder="مثال: عندي حقيبة..."></div>
+    <div style="height:8px"></div>
+  </div>
+  <div class="bottom"><button class="btn-p" onclick="submitUrgent()">✦ تأكيد وإرسال الطلب ✦</button></div>
+</div>
+ 
+<!-- ════ DAILY WIZARD ════ -->
+<div class="screen" id="s-daily">
+  <div class="topbar">
+    <button class="back-btn" onclick="wBack('daily')">←</button>
+    <div class="logo">🗓️ رحلة يومية</div>
+    <div style="font-size:12px;color:var(--gold)" id="d-step-lbl">1 / 7</div>
+  </div>
+  <div style="padding:0 18px 4px;flex-shrink:0">
+    <div class="prog-wrap" style="margin-bottom:0"><div class="prog-fill" id="d-prog" style="width:14%"></div></div>
+  </div>
+  <div class="scroll" id="d-scroll">
+    <!-- D1: موقع الانطلاق -->
+    <div id="d1" class="wstep">
+      <div class="card card-gold" style="margin-top:8px">
+        <div style="font-size:13px;color:var(--txt2);line-height:1.8;margin-bottom:14px">
+          📍 <strong style="color:var(--txt)">من أين؟</strong>  
+  
+
+          عزيزي العميل، نرجو تحديد موقع الانطلاق بدقة لإتمام الطلب بشكل صحيح.  
+  
+
+          🔒 <strong style="color:var(--gold)">تنبيه أمان:</strong> موقعك يُستخدم فقط داخل النظام آلياً لمطابقة أقرب سائق ولا يُشارك مع أي طرف. ✨ خصوصيتك مشفّرة بالكامل.  
+  
+
+          📌 فضلاً، قم بإرسال موقعك الآن للمتابعة.
+        </div>
+        <button class="gps-btn" id="gps-d-btn" onclick="getGPSFor('d-from','daily')">📍 مشاركة موقعي الحالي (GPS) — إجباري</button>
+        <div class="inp-wrap" style="margin-bottom:0"><span class="inp-icon">✍️</span><input id="d-from" placeholder="أو اكتب وصف موقعك... (مثال: حي الروضة - بجوار العثيم)"></div>
+      </div>
+    </div>
+    <!-- D2: الوجهة -->
+    <div id="d2" class="wstep" style="display:none">
+      <div class="card" style="margin-top:8px">
+        <div style="font-size:14px;font-weight:700;color:var(--txt);margin-bottom:6px">📍 إلى أين وجهتك؟</div>
+        <div style="font-size:12px;color:var(--txt2);margin-bottom:14px">اضغط على المشبك 📎 أو اكتب الوجهة يدوياً</div>
+        <div class="inp-wrap" style="margin-bottom:0"><span class="inp-icon">🏁</span><input id="d-to" placeholder="الوجهة... (حي، شارع، دوام، مدرسة)"></div>
+      </div>
+    </div>
+    <!-- D3: نوع الرحلة -->
+    <div id="d3" class="wstep" style="display:none">
+      <div class="card" style="margin-top:8px">
+        <div style="font-size:14px;font-weight:700;color:var(--txt);margin-bottom:14px">↕️ ما هو نوع الرحلة؟</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="choice-btn" id="dd-go" onclick="wSel('d','dir','dd-go','ذهاب فقط')">➡️ ذهاب فقط</div>
+          <div class="choice-btn" id="dd-both" onclick="wSel('d','dir','dd-both','ذهاب وعودة')">🔁 ذهاب وعودة</div>
+        </div>
+      </div>
+    </div>
+    <!-- D4: وقت الذهاب -->
+    <div id="d4" class="wstep" style="display:none">
+      <div class="card" style="margin-top:8px">
+        <div style="font-size:14px;font-weight:700;color:var(--txt);margin-bottom:6px">⏰ متى وقت الذهاب؟</div>
+        <div style="font-size:12px;color:var(--txt2);margin-bottom:12px">مثال: الآن — أو 7:00 صباحاً — أو 5:00 م</div>
+        <div class="inp-wrap" style="margin-bottom:12px"><span class="inp-icon">🕐</span><input id="d-time" placeholder="وقت الذهاب..."></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div class="time-chip" onclick="document.getElementById('d-time').value='الآن'">الآن</div>
+          <div class="time-chip" onclick="document.getElementById('d-time').value='6:00 صباحاً'">6:00 ص</div>
+          <div class="time-chip" onclick="document.getElementById('d-time').value='7:00 صباحاً'">7:00 ص</div>
+          <div class="time-chip" onclick="document.getElementById('d-time').value='8:00 صباحاً'">8:00 ص</div>
+          <div class="time-chip" onclick="document.getElementById('d-time').value='12:00 ظهراً'">12:00 ظ</div>
+          <div class="time-chip" onclick="document.getElementById('d-time').value='5:00 م'">5:00 م</div>
+        </div>
+      </div>
+    </div>
+    <!-- D5: عدد الأشخاص -->
+    <div id="d5" class="wstep" style="display:none">
+      <div class="card" style="margin-top:8px">
+        <div style="font-size:14px;font-weight:700;color:var(--txt);margin-bottom:16px">👥 كم عدد الأشخاص؟</div>
+        <div class="pax-wrap">
+          <button class="pax-btn" onclick="chPax('d-pax',-1)">−</button>
+          <div class="pax-val" id="d-pax">1</div>
+          <button class="pax-btn" onclick="chPax('d-pax',1)">+</button>
+        </div>
+        <div style="text-align:center;font-size:13px;color:var(--txt2)">شخص / أشخاص</div>
+      </div>
+    </div>
+    <!-- D6: حقائب -->
+    <div id="d6" class="wstep" style="display:none">
+      <div class="card" style="margin-top:8px">
+        <div style="font-size:14px;font-weight:700;color:var(--txt);margin-bottom:14px">🧳 هل لديك حقائب أو أغراض؟</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="choice-btn" id="dd-bagy" onclick="wSel('d','bag','dd-bagy','نعم')">✅ نعم</div>
+          <div class="choice-btn" id="dd-bagn" onclick="wSel('d','bag','dd-bagn','لا')">❌ لا</div>
+        </div>
+      </div>
+    </div>
+    <!-- D7: تفضيل السائق -->
+    <div id="d7" class="wstep" style="display:none">
+      <div class="card" style="margin-top:8px">
+        <div style="font-size:14px;font-weight:700;color:var(--txt);margin-bottom:14px">👤 هل تفضل سائق أم سائقة؟</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="choice-btn" id="dd-gany" onclick="wSel('d','gen','dd-gany','لا يهم')">🤝 لا يهم</div>
+          <div class="choice-btn" id="dd-gm" onclick="wSel('d','gen','dd-gm','ذكر')">👨 سائق (ذكر)</div>
+          <div class="choice-btn" id="dd-gf" onclick="wSel('d','gen','dd-gf','أنثى')">👩 سائقة (أنثى)</div>
+        </div>
+      </div>
+    </div>
+    <!-- D Summary -->
+    <div id="d-sum" class="wstep" style="display:none">
+      <div class="card card-gold" style="margin-top:8px">
+        <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:12px;letter-spacing:.5px">📋 مراجعة طلب يومي</div>
+        <div class="irow"><span>📍</span><span class="lbl">موقع الانطلاق</span><span class="val" id="ds-from">—</span></div>
+        <div class="irow"><span>🏁</span><span class="lbl">الوجهة</span><span class="val" id="ds-to">—</span></div>
+        <div class="irow"><span>↕️</span><span class="lbl">نوع الرحلة</span><span class="val" id="ds-dir">—</span></div>
+        <div class="irow"><span>⏰</span><span class="lbl">وقت الذهاب</span><span class="val" id="ds-time">—</span></div>
+        <div class="irow"><span>👥</span><span class="lbl">عدد الأشخاص</span><span class="val" id="ds-pax">—</span></div>
+        <div class="irow"><span>🧳</span><span class="lbl">أغراض</span><span class="val" id="ds-bag">—</span></div>
+        <div class="irow" style="margin-bottom:0"><span>👤</span><span class="lbl">تفضيل السائق</span><span class="val" id="ds-gen">—</span></div>
+      </div>
+      <div style="margin-top:10px;padding:12px;background:rgba(200,164,90,.05);border:1px solid rgba(200,164,90,.1);border-radius:12px;font-size:12px;color:var(--txt2);text-align:center">💰 <strong style="color:var(--gold)">السعر:</strong> يحدد من قبل الكابتن</div>
+    </div>
+    <div style="height:8px"></div>
+  </div>
+  <div class="bottom"><button class="btn-p" id="d-next-btn" onclick="wNext('daily')">التالي ←</button></div>
+</div>
+ 
+<!-- ════ MONTHLY WIZARD ════ -->
+<div class="screen" id="s-monthly">
+  <div class="topbar">
+    <button class="back-btn" onclick="wBack('monthly')">←</button>
+    <div class="logo">📅 التزام شهري</div>
+    <div style="font-size:12px;color:var(--gold)" id="m-step-lbl">1 / 10</div>
+  </div>
+  <div style="padding:0 18px 4px;flex-shrink:0">
+    <div class="prog-wrap" style="margin-bottom:0"><div class="prog-fill" id="m-prog" style="width:10%"></div></div>
+  </div>
+  <div class="scroll" id="m-scroll">
+    <!-- M1: موقع المنزل -->
+    <div id="m1" class="wstep">
+      <div class="card card-gold" style="margin-top:8px">
+        <div style="font-size:13px;color:var(--txt2);line-height:1.8;margin-bottom:14px">
+          🏠 <strong style="color:var(--txt)">من أين؟ (موقع المنزل)</strong>  
+  
+
+          عزيزي العميل، نرجو تحديد موقع الانطلاق بدقة لإتمام الطلب بشكل صحيح.  
+  
+
+          🔒 <strong style="color:var(--gold)">تنبيه أمان:</strong> موقعك يُستخدم فقط داخل النظام آلياً لمطابقة أقرب سائق ولا يُشارك مع أي طرف. ✨ خصوصيتك مشفّرة بالكامل.  
+  
+
+          📌 فضلاً، قم بإرسال موقعك الآن للمتابعة.
+        </div>
+        <button class="gps-btn" id="gps-m-btn" onclick="getGPSFor('m-home','monthly')">📍 مشاركة موقع المنزل (GPS) — إجباري</button>
+        <div class="inp-wrap" style="margin-bottom:0"><span class="inp-icon">✍️</span><input id="m-home" placeholder="أو اكتب وصف الموقع... (مثال: حي الروضة - بجوار العثيم مول)"></div>
+      </div>
+    </div>
+    <!-- M2: موقع الدوام -->
+    <div id="m2" class="wstep" style="display:none">
+      <div class="card" style="margin-top:8px">
+        <div style="font-size:14px;font-weight:700;color:var(--txt);margin-bottom:6px">🏭 ما هو موقع الدوام / الوجهة؟</div>
+        <div style="font-size:12px;color:var(--txt2);margin-bottom:14px">اسم الحي أو المعلم أو اسم الجهة</div>
+        <div class="inp-wrap" style="margin-bottom:0"><span class="inp-icon">🏭</span><input id="m-work" placeholder="موقع الدوام... (مثال: حي العليا - شركة أرامكو)"></div>
+      </div>
+    </div>
+    <!-- M3: وقت حضور السائق -->
+    <div id="m3" class="wstep" style="display:none">
+      <div class="card" style="margin-top:8px">
+        <div style="font-size:14px;font-weight:700;color:var(--txt);margin-bottom:6px">⏰ متى وقت حضور السائق للمنزل؟</div>
+        <div style="font-size:12px;color:var(--txt2);margin-bottom:12px">مثال: 6:00 صباحاً</div>
+        <div class="inp-wrap" style="margin-bottom:12px"><span class="inp-icon">🕐</span><input id="m-pickup" placeholder="وقت الحضور للمنزل..."></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div class="time-chip" onclick="document.getElementById('m-pickup').value='5:30 صباحاً'">5:30 ص</div>
+          <div class="time-chip" onclick="document.getElementById('m-pickup').value='6:00 صباحاً'">6:00 ص</div>
+          <div class="time-chip" onclick="document.getElementById('m-pickup').value='6:30 صباحاً'">6:30 ص</div>
+          <div class="time-chip" onclick="document.getElementById('m-pickup').value='7:00 صباحاً'">7:00 ص</div>
+          <div class="time-chip" onclick="document.getElementById('m-pickup').value='7:30 صباحاً'">7:30 ص</div>
+          <div class="time-chip" onclick="document.getElementById('m-pickup').value='8:00 صباحاً'">8:00 ص</div>
+        </div>
+      </div>
+    </div>
+    <!-- M4: وقت بداية الدوام -->
+    <div id="m4" class="wstep" style="display:none">
+      <div class="card" style="margin-top:8px">
+        <div style="font-size:14px;font-weight:700;color:var(--txt);margin-bottom:6px">⏱️ متى وقت بداية الدوام؟</div>
+        <div style="font-size:12px;color:var(--txt2);margin-bottom:12px">مثال: 7:00 صباحاً</div>
+        <div class="inp-wrap" style="margin-bottom:12px"><span class="inp-icon">🕖</span><input id="m-wstart" placeholder="وقت بداية الدوام..."></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div class="time-chip" onclick="document.getElementById('m-wstart').value='6:00 صباحاً'">6:00 ص</div>
+          <div class="time-chip" onclick="document.getElementById('m-wstart').value='7:00 صباحاً'">7:00 ص</div>
+          <div class="time-chip" onclick="document.getElementById('m-wstart').value='8:00 صباحاً'">8:00 ص</div>
+          <div class="time-chip" onclick="document.getElementById('m-wstart').value='9:00 صباحاً'">9:00 ص</div>
+        </div>
+      </div>
+    </div>
+    <!-- M5: وقت انتهاء الدوام -->
+    <div id="m5" class="wstep" style="display:none">
+      <div class="card" style="margin-top:8px">
+        <div style="font-size:14px;font-weight:700;color:var(--txt);margin-bottom:6px">⏲️ متى وقت انتهاء الدوام؟</div>
+        <div style="font-size:12px;color:var(--txt2);margin-bottom:12px">مثال: 2:00 ظهراً</div>
+        <div class="inp-wrap" style="margin-bottom:12px"><span class="inp-icon">🕑</span><input id="m-wend" placeholder="وقت انتهاء الدوام..."></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div class="time-chip" onclick="document.getElementById('m-wend').value='12:00 ظهراً'">12:00 ظ</div>
+          <div class="time-chip" onclick="document.getElementById('m-wend').value='1:00 ظهراً'">1:00 ظ</div>
+          <div class="time-chip" onclick="document.getElementById('m-wend').value='2:00 ظهراً'">2:00 ظ</div>
+          <div class="time-chip" onclick="document.getElementById('m-wend').value='3:00 عصراً'">3:00 ع</div>
+          <div class="time-chip" onclick="document.getElementById('m-wend').value='4:00 عصراً'">4:00 ع</div>
+          <div class="time-chip" onclick="document.getElementById('m-wend').value='5:00 م'">5:00 م</div>
+        </div>
+      </div>
+    </div>
+    <!-- M6: ثابت أو شفتات -->
+    <div id="m6" class="wstep" style="display:none">
+      <div class="card" style="margin-top:8px">
+        <div style="font-size:14px;font-weight:700;color:var(--txt);margin-bottom:14px">🏬 الدوام ثابت أم شفتات؟</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="choice-btn" id="mm-fixed" onclick="wSel('m','sched','mm-fixed','ثابت')">🔒 ثابت — نفس الوقت يومياً</div>
+          <div class="choice-btn" id="mm-shift" onclick="wSel('m','sched','mm-shift','شفتات')">🔄 شفتات — يتغير الوقت</div>
+        </div>
+      </div>
+    </div>
+    <!-- M7: عدد أيام الدوام -->
+    <div id="m7" class="wstep" style="display:none">
+      <div class="card" style="margin-top:8px">
+        <div style="font-size:14px;font-weight:700;color:var(--txt);margin-bottom:6px">📆 كم عدد أيام الدوام في الأسبوع؟</div>
+        <div style="font-size:12px;color:var(--txt2);margin-bottom:16px">مثال: 5 أيام</div>
+        <div class="pax-wrap">
+          <button class="pax-btn" onclick="chPax('m-days',-1,1,7)">−</button>
+          <div class="pax-val" id="m-days">5</div>
+          <button class="pax-btn" onclick="chPax('m-days',1,1,7)">+</button>
+        </div>
+        <div style="text-align:center;font-size:13px;color:var(--txt2)">أيام في الأسبوع</div>
+      </div>
+    </div>
+    <!-- M8: عدد الأشخاص -->
+    <div id="m8" class="wstep" style="display:none">
+      <div class="card" style="margin-top:8px">
+        <div style="font-size:14px;font-weight:700;color:var(--txt);margin-bottom:16px">👨‍👧‍👦 كم عدد الأشخاص؟</div>
+        <div class="pax-wrap">
+          <button class="pax-btn" onclick="chPax('m-pax',-1)">−</button>
+          <div class="pax-val" id="m-pax">1</div>
+          <button class="pax-btn" onclick="chPax('m-pax',1)">+</button>
+        </div>
+        <div style="text-align:center;font-size:13px;color:var(--txt2)">شخص / أشخاص</div>
+      </div>
+    </div>
+    <!-- M9: تفضيل السائق -->
+    <div id="m9" class="wstep" style="display:none">
+      <div class="card" style="margin-top:8px">
+        <div style="font-size:14px;font-weight:700;color:var(--txt);margin-bottom:14px">👫 تفضيل السائق؟</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="choice-btn" id="mm-gany" onclick="wSel('m','gen','mm-gany','لا يهم')">🤝 لا يهم</div>
+          <div class="choice-btn" id="mm-gm" onclick="wSel('m','gen','mm-gm','ذكر')">👨 سائق (ذكر)</div>
+          <div class="choice-btn" id="mm-gf" onclick="wSel('m','gen','mm-gf','أنثى')">👩 سائقة (أنثى)</div>
+        </div>
+      </div>
+    </div>
+    <!-- M10: جنسية + ملاحظات -->
+    <div id="m10" class="wstep" style="display:none">
+      <div class="card" style="margin-top:8px">
+        <div style="font-size:14px;font-weight:700;color:var(--txt);margin-bottom:14px">🌎 جنسية السائق المطلوبة؟</div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+          <div class="choice-btn" id="mm-nany" onclick="wSel('m','nat','mm-nany','لا يهم')">🌍 لا يهم</div>
+          <div class="choice-btn" id="mm-nsa" onclick="wSel('m','nat','mm-nsa','سعودي')">🇸🇦 سعودي</div>
+          <div class="choice-btn" id="mm-noth" onclick="wSel('m','nat','mm-noth','أي جنسية')">🌐 أي جنسية</div>
+        </div>
+        <div style="font-size:13px;font-weight:700;color:var(--gold);margin-bottom:8px">⛔️ ملاحظات إضافية (اختياري)</div>
+        <div class="inp-wrap" style="margin-bottom:0"><span class="inp-icon">💬</span><input id="m-notes" placeholder="أي تفاصيل إضافية..."></div>
+      </div>
+    </div>
+    <!-- M Summary -->
+    <div id="m-sum" class="wstep" style="display:none">
+      <div class="card card-gold" style="margin-top:8px">
+        <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:12px">✳️ مراجعة طلب توصيل شهري ⏳️🚕🚘</div>
+        <div class="irow"><span>🌎</span><span class="lbl">جنسية السائق</span><span class="val" id="ms-nat">—</span></div>
+        <div class="irow"><span>👫</span><span class="lbl">تفضيل السائق</span><span class="val" id="ms-gen">—</span></div>
+        <div class="irow"><span>👨‍👧‍👦</span><span class="lbl">عدد الأشخاص</span><span class="val" id="ms-pax">—</span></div>
+        <div class="irow"><span>🏠</span><span class="lbl">موقع المنزل</span><span class="val" id="ms-home">—</span></div>
+        <div class="irow"><span>🏭</span><span class="lbl">موقع الدوام</span><span class="val" id="ms-work">—</span></div>
+        <div class="irow"><span>⏰</span><span class="lbl">حضور السائق للمنزل</span><span class="val" id="ms-pickup">—</span></div>
+        <div class="irow"><span>⏱️</span><span class="lbl">بداية الدوام</span><span class="val" id="ms-wstart">—</span></div>
+        <div class="irow"><span>⏲️</span><span class="lbl">انتهاء الدوام</span><span class="val" id="ms-wend">—</span></div>
+        <div class="irow"><span>🏬</span><span class="lbl">نظام الدوام</span><span class="val" id="ms-sched">—</span></div>
+        <div class="irow"><span>📆</span><span class="lbl">أيام الدوام</span><span class="val" id="ms-days">—</span></div>
+        <div class="irow" style="margin-bottom:0"><span>⛔️</span><span class="lbl">ملاحظات إضافية</span><span class="val" id="ms-notes">—</span></div>
+      </div>
+      <div style="margin-top:10px;padding:12px;background:rgba(200,164,90,.05);border:1px solid rgba(200,164,90,.1);border-radius:12px;font-size:12px;color:var(--txt2);text-align:center">
+        💰 <strong style="color:var(--gold)">السعر:</strong> يحدد من قبل الكابتن
+      </div>
+    </div>
+    <div style="height:8px"></div>
+  </div>
+  <div class="bottom"><button class="btn-p" id="m-next-btn" onclick="wNext('monthly')">التالي ←</button></div>
+</div>
+<!-- ════ RADAR ════ -->
+<div class="screen" id="s-radar">
+  <div class="topbar">
+    <div style="width:36px"></div>
+    <div class="logo">البحث عن كابتن</div>
+    <div style="width:36px"></div>
+  </div>
+  <div class="scroll">
+    <div style="display:flex;flex-direction:column;align-items:center;padding:24px 20px 18px">
+      <div style="position:relative;width:200px;height:200px;margin:0 auto 24px">
+        <svg viewBox="0 0 200 200" width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="100" cy="100" r="95" fill="none" stroke="#C8A45A" stroke-width=".5" opacity=".15"/>
+          <circle cx="100" cy="100" r="68" fill="none" stroke="#C8A45A" stroke-width=".5" opacity=".2"/>
+          <circle cx="100" cy="100" r="40" fill="none" stroke="#C8A45A" stroke-width=".5" opacity=".28"/>
+          <g style="transform-origin:100px 100px;animation:sweep 2.5s linear infinite">
+            <path d="M100 100 L100 5 A95 95 0 0 1 195 100Z" fill="#C8A45A" opacity=".06"/>
+            <line x1="100" y1="100" x2="100" y2="8" stroke="#C8A45A" stroke-width=".8" opacity=".5"/>
+          </g>
+          <circle cx="100" cy="100" r="5.5" fill="#C8A45A" opacity=".9" style="animation:cpulse 1s ease-in-out infinite;transform-origin:100px 100px"/>
+          <circle cx="148" cy="58" r="4" fill="#C8A45A" style="animation:blip 2s ease-in-out infinite 0s"/>
+          <circle cx="62" cy="135" r="3" fill="#C8A45A" style="animation:blip 2s ease-in-out infinite .7s"/>
+          <circle cx="155" cy="130" r="3.5" fill="#C8A45A" style="animation:blip 2s ease-in-out infinite 1.2s"/>
+          <circle cx="75" cy="55" r="2.5" fill="#C8A45A" style="animation:blip 2s ease-in-out infinite 1.6s"/>
+        </svg>
+      </div>
+      <div class="pill s" style="margin-bottom:14px"><span class="blink"></span>يبحث عن كباتن قريبين</div>
+      <div style="font-size:17px;font-weight:700;margin-bottom:6px;text-align:center">نبحث لك عن أفضل كابتن</div>
+      <div style="font-size:12px;color:var(--txt2 );text-align:center">فحص السائقين المعتمدين القريبين منك</div>
+      <div style="font-size:40px;font-weight:700;color:var(--gold);margin:20px 0 4px;font-variant-numeric:tabular-nums" id="radar-count">00:00</div>
+      <div style="font-size:10px;color:var(--txt2);letter-spacing:1px">وقت الانتظار</div>
+    </div>
+    <div class="card">
+      <div class="irow"><span>📍</span><span class="lbl">من</span><span class="val" id="r-from">—</span></div>
+      <div class="irow" style="margin-bottom:0"><span>🏁</span><span class="lbl">إلى</span><span class="val" id="r-to">—</span></div>
+    </div>
+    <div style="text-align:center;padding:12px;background:rgba(200,164,90,.04);border:1px solid rgba(200,164,90,.08);border-radius:12px;font-size:12px;color:var(--txt2)">
+      تتحدث تلقائياً كل 3 ثوانٍ 🔄  
+<span style="color:var(--gold);display:block;margin-top:4px">ستظهر عروض الكباتن هنا فور وصولها</span>
+    </div>
+    <div style="height:12px"></div>
+  </div>
+  <div class="bottom" style="display:flex;flex-direction:column;gap:8px">
+    <button class="btn-s" onclick="goTo('offers')">عرض عروض الكباتن →</button>
+    <button class="btn-d" onclick="cancelTrip()">❌ إلغاء الطلب</button>
+  </div>
+</div>
+ 
+<!-- ════ OFFERS ════ -->
+<div class="screen" id="s-offers">
+  <div class="topbar">
+    <button class="back-btn" onclick="goTo('radar')">←</button>
+    <div class="logo">اختر كابتنك</div>
+    <div style="width:36px"></div>
+  </div>
+  <div class="scroll" style="padding-top:8px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div style="font-size:16px;font-weight:700" id="offers-count">3 عروض وصلتك</div>
+      <div class="pill s"><span class="blink"></span>البحث مستمر</div>
+    </div>
+    <div class="offer best">
+      <div class="best-tag">الأرخص ✦</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="d-av">🧑‍✈️</div>
+          <div><div style="font-size:14px;font-weight:700">الكابتن أحمد</div><div style="color:var(--gold);font-size:10px;margin-top:2px">⭐⭐⭐⭐⭐ 4.9</div><div style="font-size:11px;color:var(--txt2);margin-top:1px">تويوتا كامري 2023</div></div>
+        </div>
+        <div style="text-align:left"><div style="font-size:26px;font-weight:700;color:var(--gold)">42</div><div style="font-size:11px;color:var(--txt2)">ريال</div></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        <span style="font-size:11px;color:var(--txt2)">🚗 كامري 2023</span>
+        <span style="font-size:11px;color:var(--txt2)">🔖 أ ب ج 1234</span>
+        <span style="font-size:11px;color:var(--txt2)">📍 0.8 كم</span>
+        <span style="font-size:11px;color:var(--txt2)">⏱️ 3 دقائق</span>
+      </div>
+      <button class="btn-acc" onclick="acceptOffer('الكابتن أحمد','42','تويوتا كامري 2023','أ ب ج 1234')">✅ قبول العرض — 42 ريال</button>
+    </div>
+    <div class="offer">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="d-av">👨‍💼</div>
+          <div><div style="font-size:14px;font-weight:700">الكابتن محمد</div><div style="color:var(--gold);font-size:10px;margin-top:2px">⭐⭐⭐⭐⭐ 4.8</div><div style="font-size:11px;color:var(--txt2);margin-top:1px">هيونداي سوناتا 2022</div></div>
+        </div>
+        <div style="text-align:left"><div style="font-size:26px;font-weight:700;color:var(--gold)">48</div><div style="font-size:11px;color:var(--txt2)">ريال</div></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        <span style="font-size:11px;color:var(--txt2)">🚗 سوناتا 2022</span>
+        <span style="font-size:11px;color:var(--txt2)">🔖 د هـ و 5678</span>
+        <span style="font-size:11px;color:var(--txt2)">📍 1.2 كم</span>
+        <span style="font-size:11px;color:var(--txt2)">⏱️ 5 دقائق</span>
+      </div>
+      <button class="btn-acc" onclick="acceptOffer('الكابتن محمد','48','هيونداي سوناتا 2022','د هـ و 5678')">✅ قبول العرض — 48 ريال</button>
+    </div>
+    <div class="offer">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="d-av">🧔</div>
+          <div><div style="font-size:14px;font-weight:700">الكابتن خالد</div><div style="color:var(--gold);font-size:10px;margin-top:2px">⭐⭐⭐⭐⭐ 4.7</div><div style="font-size:11px;color:var(--txt2);margin-top:1px">BMW 520i — VIP</div></div>
+        </div>
+        <div style="text-align:left"><div style="font-size:26px;font-weight:700;color:var(--gold2)">65</div><div style="font-size:11px;color:var(--txt2)">ريال</div></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        <span style="font-size:11px;color:var(--txt2)">🏎️ BMW 520i</span>
+        <span style="font-size:11px;color:var(--txt2)">🔖 ز ح ط 9101</span>
+        <span style="font-size:11px;color:var(--txt2)">📍 0.5 كم</span>
+        <span style="font-size:11px;color:var(--txt2)">⏱️ 2 دقيقة</span>
+      </div>
+      <button class="btn-acc" style="background:linear-gradient(135deg,#E8C87A,#C8A45A)" onclick="acceptOffer('الكابتن خالد','65','BMW 520i','ز ح ط 9101')">✅ VIP — 65 ريال</button>
+    </div>
+  </div>
+</div>
+ 
+<!-- ════ ACTIVE TRIP ════ -->
+<div class="screen" id="s-active">
+  <div class="topbar">
+    <div style="width:36px"></div>
+    <div class="logo">رحلتك النشطة</div>
+    <div class="pill a"><span class="blink"></span>جارية</div>
+  </div>
+  <div class="scroll" style="padding:0 0 24px">
+    <div class="trip-banner">
+      <span class="trip-icon" id="act-icon">🚗</span>
+      <div style="font-size:18px;font-weight:700;margin-bottom:6px" id="act-title">الكابتن في طريقه إليك</div>
+      <div style="font-size:13px;color:var(--txt2)" id="act-sub">انتظره في موقعك المحدد</div>
+    </div>
+    <div class="drv" style="margin:0 16px 10px">
+      <div class="drv-av">🧑‍✈️</div>
+      <div style="flex:1">
+        <div style="font-size:15px;font-weight:700" id="act-dname">—</div>
+        <div style="font-size:12px;color:var(--txt2);margin-top:2px" id="act-dcar">—</div>
+        <div style="font-size:12px;color:var(--gold);margin-top:3px;letter-spacing:1px" id="act-dplate">—</div>
+      </div>
+      <div style="text-align:left">
+        <div style="font-size:22px;font-weight:700;color:var(--gold)" id="act-price">—</div>
+        <div style="font-size:11px;color:var(--txt2)">ريال</div>
+      </div>
+    </div>
+    <div class="act-grid" style="padding:0 16px">
+      <div class="act-btn" onclick="shareLocation()"><span class="act-icon">📍</span><div class="act-lbl">مشاركة موقعي</div></div>
+      <div class="act-btn" onclick="toast('⏳ طلب إلغاء أُرسل')"><span class="act-icon">🚫</span><div class="act-lbl">طلب إلغاء</div></div>
+      <div class="act-btn" onclick="toast('📞 جاري الاتصال...')"><span class="act-icon">📞</span><div class="act-lbl">تواصل</div></div>
+      <div class="act-btn" onclick="toast('🚨 تم إرسال الشكوى')"><span class="act-icon">🚨</span><div class="act-lbl">شكوى</div></div>
+    </div>
+    <div class="card" style="margin:10px 16px">
+      <span class="slabel">📋 مراحل الرحلة</span>
+      <div class="tl-step"><div class="tl-left"><div class="tl-dot done" id="tl1">✓</div><div class="tl-line done" id="tll1"></div></div><div><div style="font-size:13px;font-weight:700;color:var(--txt)">تم قبول الطلب</div><div style="font-size:11px;color:var(--gold);margin-top:2px" id="tt1">—</div></div></div>
+      <div class="tl-step"><div class="tl-left"><div class="tl-dot now" id="tl2">2</div><div class="tl-line" id="tll2"></div></div><div><div style="font-size:13px;font-weight:700;color:var(--txt)">الكابتن في الطريق إليك</div><div style="font-size:11px;color:var(--gold);margin-top:2px" id="tt2">—</div></div></div>
+      <div class="tl-step"><div class="tl-left"><div class="tl-dot" id="tl3">3</div><div class="tl-line" id="tll3"></div></div><div><div style="font-size:13px;font-weight:700;color:var(--txt)">الكابتن وصل</div><div style="font-size:11px;color:var(--gold);margin-top:2px" id="tt3">—</div></div></div>
+      <div class="tl-step"><div class="tl-left"><div class="tl-dot" id="tl4">4</div></div><div><div style="font-size:13px;font-weight:700;color:var(--txt)">اكتملت الرحلة 🎉</div><div style="font-size:11px;color:var(--gold);margin-top:2px" id="tt4">—</div></div></div>
+    </div>
+    <div style="display:flex;gap:8px;padding:0 16px">
+      <button class="btn-s" style="font-size:12px;padding:11px" onclick="nextStatus()">الحالة التالية ←</button>
+      <button class="btn-s" style="font-size:12px;padding:11px;border-color:rgba(200,164,90,.12);color:var(--txt2)" onclick="finishTrip()">انتهت الرحلة →</button>
+    </div>
+  </div>
+</div>
+ 
+<!-- ════ RATING ════ -->
+<div class="screen" id="s-rating">
+  <div style="padding:28px 18px 14px;text-align:center;flex-shrink:0">
+    <div style="font-size:48px;margin-bottom:12px;animation:flt 2s ease-in-out infinite">🎉</div>
+    <div style="font-size:22px;font-weight:700">وصلت بالسلامة!</div>
+    <div style="font-size:13px;color:var(--txt2);margin-top:6px">شاركنا تجربتك مع الكابتن</div>
+  </div>
+  <div class="scroll">
+    <div class="card card-gold">
+      <div class="irow" style="background:none;padding:8px 0"><span>🆔</span><span class="lbl">رقم الرحلة</span><span class="val" id="rat-id">#1042</span></div>
+      <div class="irow" style="background:none;padding:8px 0"><span>🧑‍✈️</span><span class="lbl">الكابتن</span><span class="val" id="rat-dname">—</span></div>
+      <div class="irow" style="background:none;padding:8px 0;margin-bottom:0"><span>💰</span><span class="lbl">المبلغ المدفوع</span><span class="val" style="color:var(--gold)" id="rat-price">—</span></div>
+    </div>
+    <div style="text-align:center;font-size:11px;color:var(--txt2);letter-spacing:2px;margin:8px 0">✦ كيف كانت تجربتك؟ ✦</div>
+    <div class="stars-row">
+      <span class="star" onclick="rateStar(1)">⭐</span>
+      <span class="star" onclick="rateStar(2)">⭐</span>
+      <span class="star" onclick="rateStar(3)">⭐</span>
+      <span class="star" onclick="rateStar(4)">⭐</span>
+      <span class="star" onclick="rateStar(5)">⭐</span>
+    </div>
+    <div style="text-align:center;font-size:13px;color:var(--gold);margin-bottom:16px;min-height:20px" id="rat-lbl">اضغط لتقييم الكابتن</div>
+    <div class="inp-wrap"><span class="inp-icon">💬</span><input placeholder="تعليق اختياري..." id="rat-comment"></div>
+    <div style="height:12px"></div>
+    <button class="btn-p" id="btn-rat" disabled onclick="submitRating()">⭐ إرسال التقييم</button>
+    <div style="height:8px"></div>
+    <button class="btn-s" onclick="goTo('home')" style="opacity:.55">تخطي</button>
+  </div>
+</div>
+ 
+</div>
+<div id="toast"></div>
+ 
+<script>
+'use strict';
+const tg = window.Telegram?.WebApp;
+if(tg){tg.ready();tg.expand();tg.setHeaderColor('#0D0D0D');tg.setBackgroundColor('#0D0D0D')}
+const API = '/api';
+const ST = {car:'economy',tripId:null,userId:tg?.initDataUnsafe?.user?.id||0,lat:null,lng:null,
+            tripStatus:1,stars:0,dname:'',dcar:'',dplate:'',dprice:''};
+const D  = {step:1,total:7,from:'',to:'',dir:'',time:'',pax:1,bag:'',gen:''};
+const M  = {step:1,total:10,home:'',work:'',pickup:'',wstart:'',wend:'',sched:'',days:5,pax:1,gen:'',nat:'',notes:''};
+let radarTimer=null,radarSec=0,pollTimer=null,statusTimer=null,toastT=null;
+ 
+const STATUSES=[
+  {icon:'🚗',title:'الكابتن في طريقه إليك',sub:'انتظره في موقعك المحدد'},
+  {icon:'📍',title:'الكابتن وصل!',sub:'توجه للسيارة الآن'},
+  {icon:'🏎️',title:'الرحلة انطلقت!',sub:'استمتع برحلتك'},
+  {icon:'🎉',title:'وصلت بالسلامة!',sub:'الحمد لله على السلامة'},
+];
+const RLABELS=['','سيء جداً 😤','سيء 😕','مقبول 😐','جيد 😊','ممتاز جداً 🌟'];
+ 
+// greeting
+const hr=new Date().getHours();
+document.getElementById('home-greet').textContent=hr<12?'صباح الخير 👋':hr<17?'مساء الخير 👋':'مساء النور 👋';
+ 
+// ── NAVIGATION ──────────────────────────────────
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s=>{
+    if(s.classList.contains('active')){s.classList.add('out');s.classList.remove('active');setTimeout(()=>s.classList.remove('out'),420)}
+  });
+  requestAnimationFrame(()=>document.getElementById('s-'+id).classList.add('active'));
+  if(tg?.BackButton) id==='home'?tg.BackButton.hide():tg.BackButton.show();
+}
+ 
+function goToRequest(type){
+  ST.tripType=type;
+  if(type==='trip_daily'){
+    Object.assign(D,{step:1,from:'',to:'',dir:'',time:'',pax:1,bag:'',gen:''});
+    document.querySelectorAll('#s-daily .choice-btn').forEach(b=>b.classList.remove('sel'));
+    resetGPSBtn('gps-d-btn','📍 مشاركة موقعي الحالي (GPS) — إجباري');
+    wShow('daily',1);goTo('daily');
+  } else if(type==='trip_monthly'){
+    Object.assign(M,{step:1,home:'',work:'',pickup:'',wstart:'',wend:'',sched:'',days:5,pax:1,gen:'',nat:'',notes:''});
+    document.querySelectorAll('#s-monthly .choice-btn').forEach(b=>b.classList.remove('sel'));
+    document.getElementById('m-days').textContent='5';
+    document.getElementById('m-pax').textContent='1';
+    resetGPSBtn('gps-m-btn','📍 مشاركة موقع المنزل (GPS) — إجباري');
+    wShow('monthly',1);goTo('monthly');
+  } else {
+    goTo('request');
+  }
+}
+ 
+function resetGPSBtn(id,text){
+  const b=document.getElementById(id);
+  if(b){b.textContent=text;b.style.color='var(--gold)';b.style.borderColor='rgba(200,164,90,.35)';b.className='gps-btn'}
+}
+ 
+// ── GPS ─────────────────────────────────────────
+function getGPSFor(inputId, type){
+  if(!navigator.geolocation){toast('⚠️ جهازك لا يدعم GPS');return}
+  const btnId = type==='monthly'?'gps-m-btn':type==='daily'?'gps-d-btn':'gps-urgent-btn';
+  const btn=document.getElementById(btnId);
+  if(btn){btn.textContent='⏳ جاري تحديد موقعك...';btn.style.opacity='.7'}
+  navigator.geolocation.getCurrentPosition(p=>{
+    const txt=`موقعي الحالي (${p.coords.latitude.toFixed(4)}, ${p.coords.longitude.toFixed(4)})`;
+    document.getElementById(inputId).value=txt;
+    ST.lat=p.coords.latitude;ST.lng=p.coords.longitude;
+    if(btn){btn.textContent='✅ تم تحديد الموقع بنجاح!';btn.className='gps-btn done';btn.style.opacity='1'}
+    toast('✅ تم تحديد موقعك — اكتب وصفاً للدقة');
+  },()=>{
+    if(btn){btn.textContent=btn.textContent.replace('⏳','📍');btn.style.opacity='1'}
+    toast('⚠️ تعذر GPS — اكتب موقعك يدوياً بدقة');
+  },{timeout:10000,enableHighAccuracy:true});
+}
+ 
+// ── PAX COUNTER ─────────────────────────────────
+function chPax(id,delta,mn=1,mx=10){
+  const el=document.getElementById(id);
+  el.textContent=Math.max(mn,Math.min(mx,parseInt(el.textContent)+delta));
+}
+ 
+// ── CAR TYPE ─────────────────────────────────────
+function selCar(el,type){
+  document.querySelectorAll('.ct').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');ST.car=type;
+}
+ 
+// ── WIZARD ENGINE ────────────────────────────────
+function wShow(wiz,n){
+  const prefix=wiz==='daily'?'d':'m';
+  const total=wiz==='daily'?D.total:M.total;
+  document.querySelectorAll(`#s-${wiz} .wstep`).forEach(el=>el.style.display='none');
+  const sumId=prefix+'-sum';
+  document.getElementById(sumId).style.display='none';
+  const tid = n>total ? sumId : prefix+n;
+  const el=document.getElementById(tid);if(el)el.style.display='block';
+  const pct=Math.round((Math.min(n,total)/total)*100);
+  document.getElementById(prefix+'-prog').style.width=pct+'%';
+  document.getElementById(prefix+'-step-lbl').textContent=n>total?'مراجعة':n+' / '+total;
+  const btn=document.getElementById(prefix+'-next-btn');
+  btn.textContent=n>total?'✦ تأكيد وإرسال الطلب ✦':'التالي ←';
+  const sc=document.getElementById(prefix+'-scroll');if(sc)sc.scrollTop=0;
+}
+ 
+function wSel(prefix,key,btnId,val){
+  const groupChar = btnId.split('-')[1];
+  document.querySelectorAll(`[id^="${prefix}${groupChar}-"]`).forEach(b=>b.classList.remove('sel'));
+  document.getElementById(btnId).classList.add('sel');
+  if(prefix==='d'){D[key]=val} else {M[key]=val}
+}
+ 
+function wBack(wiz){
+  if(wiz==='daily'){if(D.step<=1){goTo('home');return}D.step--;wShow('daily',D.step)}
+  else{if(M.step<=1){goTo('home');return}M.step--;wShow('monthly',M.step)}
+}
+ 
+function wNext(wiz){
+  if(wiz==='daily') dailyNext();
+  else monthlyNext();
+}
+ 
+// ── DAILY NEXT ───────────────────────────────────
+function dailyNext(){
+  if(D.step>D.total){submitWizard('daily');return}
+  if(D.step===1){const v=document.getElementById('d-from').value.trim();if(!v){toast('⚠️ الموقع إجباري — شارك GPS أو اكتبه');return}D.from=v}
+  if(D.step===2){const v=document.getElementById('d-to').value.trim();if(!v){toast('⚠️ أدخل الوجهة');return}D.to=v}
+  if(D.step===3&&!D.dir){toast('⚠️ اختر نوع الرحلة');return}
+  if(D.step===4){const v=document.getElementById('d-time').value.trim();if(!v){toast('⚠️ أدخل وقت الذهاب');return}D.time=v}
+  if(D.step===5){D.pax=parseInt(document.getElementById('d-pax').textContent)||1}
+  if(D.step===6&&!D.bag){toast('⚠️ اختر إجابة الحقائب');return}
+  if(D.step===7&&!D.gen){toast('⚠️ اختر تفضيل السائق');return}
+  if(D.step===D.total){
+    document.getElementById('ds-from').textContent=D.from;
+    document.getElementById('ds-to').textContent=D.to;
+    document.getElementById('ds-dir').textContent=D.dir;
+    document.getElementById('ds-time').textContent=D.time;
+    document.getElementById('ds-pax').textContent=D.pax+' شخص';
+    document.getElementById('ds-bag').textContent=D.bag;
+    document.getElementById('ds-gen').textContent=D.gen;
+  }
+  D.step++;wShow('daily',D.step);
+}
+ 
+// ── MONTHLY NEXT ─────────────────────────────────
+function monthlyNext(){
+  if(M.step>M.total){submitWizard('monthly');return}
+  if(M.step===1){const v=document.getElementById('m-home').value.trim();if(!v){toast('⚠️ الموقع إجباري — شارك GPS أو اكتبه بدقة');return}M.home=v}
+  if(M.step===2){const v=document.getElementById('m-work').value.trim();if(!v){toast('⚠️ أدخل موقع الدوام');return}M.work=v}
+  if(M.step===3){const v=document.getElementById('m-pickup').value.trim();if(!v){toast('⚠️ أدخل وقت الحضور للمنزل');return}M.pickup=v}
+  if(M.step===4){const v=document.getElementById('m-wstart').value.trim();if(!v){toast('⚠️ أدخل وقت بداية الدوام');return}M.wstart=v}
+  if(M.step===5){const v=document.getElementById('m-wend').value.trim();if(!v){toast('⚠️ أدخل وقت انتهاء الدوام');return}M.wend=v}
+  if(M.step===6&&!M.sched){toast('⚠️ اختر نظام الدوام');return}
+  if(M.step===7){M.days=parseInt(document.getElementById('m-days').textContent)||5}
+  if(M.step===8){M.pax=parseInt(document.getElementById('m-pax').textContent)||1}
+  if(M.step===9&&!M.gen){toast('⚠️ اختر تفضيل السائق');return}
+  if(M.step===10){
+    if(!M.nat){toast('⚠️ اختر جنسية السائق');return}
+    M.notes=document.getElementById('m-notes').value.trim()||'لا يوجد';
+    document.getElementById('ms-nat').textContent=M.nat;
+    document.getElementById('ms-gen').textContent=M.gen;
+    document.getElementById('ms-pax').textContent=M.pax+' شخص';
+    document.getElementById('ms-home').textContent=M.home;
+    document.getElementById('ms-work').textContent=M.work;
+    document.getElementById('ms-pickup').textContent=M.pickup;
+    document.getElementById('ms-wstart').textContent=M.wstart;
+    document.getElementById('ms-wend').textContent=M.wend;
+    document.getElementById('ms-sched').textContent=M.sched;
+    document.getElementById('ms-days').textContent=M.days+' أيام أسبوعياً';
+    document.getElementById('ms-notes').textContent=M.notes;
+  }
+  M.step++;wShow('monthly',M.step);
+}
+ 
+// ── SUBMIT WIZARD ────────────────────────────────
+async function submitWizard(wiz){
+  const btnId = wiz==='daily'?'d-next-btn':'m-next-btn';
+  const btn=document.getElementById(btnId);
+  btn.disabled=true;btn.textContent='⏳ جاري الإرسال...';
+  const from = wiz==='daily'?D.from:M.home;
+  const to   = wiz==='daily'?D.to:M.work;
+  document.getElementById('r-from').textContent=from;
+  document.getElementById('r-to').textContent=to;
+  goTo('radar');startRadar();
+  const payload = wiz==='daily'
+    ? {user_id:ST.userId,trip_type:'trip_daily',from_location_text:from,to_location_text:to,from_latitude:ST.lat,from_longitude:ST.lng,trip_time:D.time,passengers_count:D.pax,gender_preference:D.gen,has_luggage:D.bag==='نعم',trip_direction:D.dir}
+    : {user_id:ST.userId,trip_type:'trip_monthly',from_location_text:from,to_location_text:to,from_latitude:ST.lat,from_longitude:ST.lng,pickup_time:M.pickup,work_start:M.wstart,return_time:M.wend,schedule_type:M.sched,days_count:M.days,passengers_count:M.pax,gender_preference:M.gen,driver_nationality:M.nat,details:M.notes};
+  try{
+    const res=await fetch(API+'/request_trip',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const d=await res.json();
+    if(d.trip_id){ST.tripId=d.trip_id;startPolling(d.trip_id)}
+  }catch(e){
+    toast('⚠️ وضع المحاكاة: جاري جلب عروض وهمية');
+    ST.tripId = 999; 
+    setTimeout(() => goTo('offers'), 3000);
+  }
+  btn.disabled=false;
+}
+ 
+// ── SUBMIT URGENT ────────────────────────────────
+async function submitUrgent(){
+  const f=document.getElementById('from-inp').value.trim();
+  const t=document.getElementById('to-inp').value.trim();
+  if(!f){toast('⚠️ أدخل موقع الانطلاق');return}
+  if(!t){toast('⚠️ أدخل الوجهة');return}
+  document.getElementById('r-from').textContent=f;
+  document.getElementById('r-to').textContent=t;
+  goTo('radar');startRadar();
+  try{
+    const res=await fetch(API+'/request_trip',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:ST.userId,trip_type:'trip_urgent',from_location_text:f,to_location_text:t,from_latitude:ST.lat,from_longitude:ST.lng,car_type:ST.car,details:document.getElementById('notes-inp').value||null})});
+    const d=await res.json();
+    if(d.trip_id){ST.tripId=d.trip_id;startPolling(d.trip_id)}
+  }catch(e){
+    toast('⚠️ وضع المحاكاة: جاري جلب عروض وهمية');
+    ST.tripId = 999; 
+    setTimeout(() => goTo('offers'), 3000);
+  }
+}
+ 
+// ── RADAR ─────────────────────────────────────────
+function startRadar(){
+  radarSec=0;clearInterval(radarTimer);
+  radarTimer=setInterval(()=>{radarSec++;const m=String(Math.floor(radarSec/60)).padStart(2,'0'),s=String(radarSec%60).padStart(2,'0');document.getElementById('radar-count').textContent=m+':'+s},1000);
+}
+ 
+function startPolling(id){
+  clearInterval(pollTimer);
+  pollTimer=setInterval(async()=>{
+    try{const res=await fetch(API+'/check_offers/'+id);const d=await res.json();if(d.offers&&d.offers.length>0){clearInterval(pollTimer);goTo('offers')}}catch(e){}
+  },3000);
+}
+ 
+function cancelTrip(){clearInterval(radarTimer);clearInterval(pollTimer);ST.tripId=null;toast('✅ تم إلغاء الطلب');setTimeout(()=>goTo('home'),800)}
+ 
+// ── ACCEPT OFFER ──────────────────────────────────
+function acceptOffer(name,price,car,plate){
+  clearInterval(radarTimer);clearInterval(pollTimer);
+  ST.dname=name;ST.dprice=price;ST.dcar=car;ST.dplate=plate;ST.tripStatus=1;
+  document.getElementById('act-dname').textContent=name;
+  document.getElementById('act-dcar').textContent=car;
+  document.getElementById('act-dplate').textContent=plate;
+  document.getElementById('act-price').textContent=price;
+  document.getElementById('tt1').textContent=nowTime();
+  document.getElementById('tt2').textContent=nowTime();
+  document.getElementById('rat-dname').textContent=name;
+  document.getElementById('rat-price').textContent=price+' ريال';
+  document.getElementById('active-chip').style.display='flex';
+  applyStatus(1);goTo('active');
+  toast('🎉 تم القبول! الكابتن في طريقه');
+  if(ST.tripId)startStatusPoll(ST.tripId);
+}
+ 
+function startStatusPoll(id){
+  clearInterval(statusTimer);
+  statusTimer=setInterval(async()=>{
+    try{const res=await fetch(API+'/trip_status/'+id);const d=await res.json();const smap={accepted:1,arrived:2,in_progress:3,completed:4};if(smap[d.status]&&smap[d.status]>ST.tripStatus){ST.tripStatus=smap[d.status];applyStatus(smap[d.status])}if(d.status==='completed'){clearInterval(statusTimer);setTimeout(()=>finishTrip(),1500)}}catch(e){}
+  },4000);
+}
+ 
+function applyStatus(step){
+  const s=STATUSES[step-1];
+  document.getElementById('act-icon').textContent=s.icon;
+  document.getElementById('act-title').textContent=s.title;
+  document.getElementById('act-sub').textContent=s.sub;
+  for(let i=1;i<=4;i++){
+    const dot=document.getElementById('tl'+i);
+    const line=document.getElementById('tll'+i);
+    const time=document.getElementById('tt'+i);
+    dot.classList.remove('done','now');
+    if(i<step){dot.classList.add('done');dot.textContent='✓';if(line)line.classList.add('done');if(time&&time.textContent==='—')time.textContent=nowTime()}
+    else if(i===step){dot.classList.add('now');dot.textContent=i;if(time)time.textContent=nowTime()}
+    else{dot.textContent=i;if(line)line.classList.remove('done')}
+  }
+}
+ 
+function nextStatus(){
+  if(ST.tripStatus>=4){finishTrip();return}
+  ST.tripStatus++;applyStatus(ST.tripStatus);toast(STATUSES[ST.tripStatus-1].icon+' '+STATUSES[ST.tripStatus-1].title);
+}
+ 
+function finishTrip(){clearInterval(statusTimer);document.getElementById('active-chip').style.display='none';goTo('rating')}
+ 
+function shareLocation(){
+  if(!navigator.geolocation){toast('⚠️ جهازك لا يدعم GPS');return}
+  navigator.geolocation.getCurrentPosition(p=>{
+    if(ST.tripId)fetch(API+'/share_location',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({trip_id:ST.tripId,user_id:ST.userId,lat:p.coords.latitude,lng:p.coords.longitude})}).catch(()=>{});
+    toast('📍 تم إرسال موقعك للكابتن!');
+  },()=>toast('⚠️ تعذر تحديد الموقع'));
+}
+ 
+// ── RATING ───────────────────────────────────────
+function rateStar(n){
+  ST.stars=n;
+  document.querySelectorAll('.star').forEach((s,i)=>s.classList.toggle('on',i<n));
+  document.getElementById('rat-lbl').textContent=RLABELS[n]||'';
+  document.getElementById('btn-rat').disabled=false;
+}
+ 
+async function submitRating(){
+  if(!ST.stars)return;
+  try{await fetch(API+'/submit_rating',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({trip_id:ST.tripId,stars:ST.stars,comment:document.getElementById('rat-comment').value,user_id:ST.userId})})}catch(e){}
+  toast('⭐ شكراً! تم إرسال تقييم '+ST.stars+' نجوم');
+  ST.tripId=null;ST.stars=0;
+  setTimeout(()=>goTo('home'),1200);
+}
+ 
+// ── UTILS ─────────────────────────────────────────
+function toast(msg){
+  const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');
+  clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2800);
+}
+function nowTime(){return new Date().toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'})}
+ 
+// Telegram back button
+tg?.BackButton?.onClick?.(()=>{
+  const a=document.querySelector('.screen.active')?.id;
+  const map={'s-request':'home','s-daily':'home','s-monthly':'home','s-radar':'home','s-offers':'radar','s-active':'home','s-rating':'home'};
+  const t=map[a];if(t)goTo(t);else if(a==='s-home')tg.close();
+});
+</script>
+</body>
+</html>
