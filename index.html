@@ -1081,26 +1081,25 @@ function submitUrgent(){
   if(!f){if(tg && tg.showAlert) tg.showAlert('⚠️ أدخل موقع الانطلاق');return}
   if(!t){if(tg && tg.showAlert) tg.showAlert('⚠️ أدخل الوجهة');return}
 
-  let mappedCarType = 'سيارة صغيرة';
-  if(ST.car === 'comfort') mappedCarType = 'سيارة عائلية';
-  if(ST.car === 'vip') mappedCarType = 'VIP';
-  if(ST.car === 'لا يهم') mappedCarType = 'لا يهم';
-
   const gps_loc = ST.lat + "," + ST.lng;
 
   const payload = {
     user_id: ST.userId,
     trip_type: 'trip_urgent',
     from_location_text: f,
-    to_location_name: t, // 💡 تم التصحيح
+    to_location_name: t,
     from_location_gps: gps_loc,
-    vehicle_type: mappedCarType,
-    order_details: document.getElementById('notes-inp').value || 'لا يوجد' // 💡 تم التصحيح
+    vehicle_type: ST.car, // 💡 يأخذ القيمة مباشرة من الزر (سيارة صغيرة، سيارة عائلية، لا يهم)
+    gender_preference: 'لا يهم', 
+    has_luggage: 'لا',
+    passengers_count: 1,
+    order_details: document.getElementById('notes-inp').value || 'لا يوجد'
   };
 
   window.finalPayload = JSON.stringify(payload);
   goTo('success');
 }
+
 
 
 // ── SEND TO BOT (زر شاشة النجاح) ─────────────────
