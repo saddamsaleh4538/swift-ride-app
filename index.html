@@ -143,6 +143,12 @@ html,body{height:100%;overflow:hidden;background:var(--bg );color:var(--txt);fon
 @keyframes sweep{to{transform:rotate(360deg)}}
 @keyframes cpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.4)}}
 @keyframes blip{0%,100%{opacity:.15}50%{opacity:1}}
+/* حركة العلم السعودي */
+@keyframes waveFlag {
+  0% { transform: translateX(0) translateY(0) scale(1) rotate(0deg); }
+  50% { transform: translateX(-3%) translateY(2%) scale(1.05) rotate(1deg); }
+  100% { transform: translateX(0) translateY(0) scale(1) rotate(0deg); }
+}
 </style>
 </head>
 <body>
@@ -163,15 +169,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg );color:var(--txt);fon
 الذهاب اليوم؟</div>
   </div>
   <!-- car scene -->
-  <style>
-    @keyframes waveFlag {
-      0% { transform: translateX(0) translateY(0) scale(1) rotate(0deg); }
-      50% { transform: translateX(-3%) translateY(2%) scale(1.05) rotate(1deg); }
-      100% { transform: translateX(0) translateY(0) scale(1) rotate(0deg); }
-    }
-  </style>
   <div style="position: relative; padding: 0 16px; margin-bottom: 12px; flex-shrink: 0; overflow: hidden; border-radius: 12px;">
-    
     <!-- العلم السعودي مع تأثير الرفرفة (CSS Animation) -->
     <img src="https://upload.wikimedia.org/wikipedia/commons/0/0d/Flag_of_Saudi_Arabia.svg" style="position: absolute; top: -10%; left: -10%; width: 120%; height: 120%; object-fit: cover; opacity: 0.35; z-index: 0; animation: waveFlag 6s ease-in-out infinite;">
     
@@ -294,14 +292,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg );color:var(--txt);fon
       <div class="card card-gold" style="margin-top:8px">
         <div style="font-size:13px;color:var(--txt2);line-height:1.8;margin-bottom:14px">
           📍 <strong style="color:var(--txt)">من أين؟</strong>  
-  
-
           عزيزي العميل، نرجو تحديد موقع الانطلاق بدقة لإتمام الطلب بشكل صحيح.  
-  
-
           🔒 <strong style="color:var(--gold)">تنبيه أمان:</strong> موقعك يُستخدم فقط داخل النظام آلياً لمطابقة أقرب سائق ولا يُشارك مع أي طرف. ✨ خصوصيتك مشفّرة بالكامل.  
-  
-
           📌 فضلاً، قم بإرسال موقعك الآن للمتابعة.
         </div>
         <button class="gps-btn" id="gps-d-btn" onclick="getGPSFor('d-from','daily')">📍 مشاركة موقعي الحالي (GPS) — إجباري</button>
@@ -326,12 +318,20 @@ html,body{height:100%;overflow:hidden;background:var(--bg );color:var(--txt);fon
         </div>
       </div>
     </div>
-    <!-- D4: وقت الذهاب -->
+    <!-- D4: وقت الذهاب (والعودة) -->
     <div id="d4" class="wstep" style="display:none">
       <div class="card" style="margin-top:8px">
         <div style="font-size:14px;font-weight:700;color:var(--txt);margin-bottom:6px">⏰ متى وقت الذهاب؟</div>
         <div style="font-size:12px;color:var(--txt2);margin-bottom:12px">مثال: الآن — أو 7:00 صباحاً — أو 5:00 م</div>
+        
         <div class="inp-wrap" style="margin-bottom:12px"><span class="inp-icon">🕐</span><input id="d-time" placeholder="وقت الذهاب..."></div>
+        
+        <!-- حقل وقت العودة (يظهر فقط إذا اختار ذهاب وعودة) -->
+        <div id="return-time-container" style="display:none;">
+          <div style="font-size:14px;font-weight:700;color:var(--txt);margin-bottom:6px;margin-top:16px;">⏳ متى وقت العودة؟</div>
+          <div class="inp-wrap" style="margin-bottom:12px"><span class="inp-icon">🕑</span><input id="d-return-time" placeholder="وقت العودة..."></div>
+        </div>
+
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <div class="time-chip" onclick="document.getElementById('d-time').value='الآن'">الآن</div>
           <div class="time-chip" onclick="document.getElementById('d-time').value='6:00 صباحاً'">6:00 ص</div>
@@ -382,7 +382,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg );color:var(--txt);fon
         <div class="irow"><span>📍</span><span class="lbl">موقع الانطلاق</span><span class="val" id="ds-from">—</span></div>
         <div class="irow"><span>🏁</span><span class="lbl">الوجهة</span><span class="val" id="ds-to">—</span></div>
         <div class="irow"><span>↕️</span><span class="lbl">نوع الرحلة</span><span class="val" id="ds-dir">—</span></div>
-        <div class="irow"><span>⏰</span><span class="lbl">وقت الذهاب</span><span class="val" id="ds-time">—</span></div>
+        <div class="irow"><span>⏰</span><span class="lbl" id="ds-time-lbl">وقت الذهاب</span><span class="val" id="ds-time">—</span></div>
         <div class="irow"><span>👥</span><span class="lbl">عدد الأشخاص</span><span class="val" id="ds-pax">—</span></div>
         <div class="irow"><span>🧳</span><span class="lbl">أغراض</span><span class="val" id="ds-bag">—</span></div>
         <div class="irow" style="margin-bottom:0"><span>👤</span><span class="lbl">تفضيل السائق</span><span class="val" id="ds-gen">—</span></div>
@@ -410,14 +410,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg );color:var(--txt);fon
       <div class="card card-gold" style="margin-top:8px">
         <div style="font-size:13px;color:var(--txt2);line-height:1.8;margin-bottom:14px">
           🏠 <strong style="color:var(--txt)">من أين؟ (موقع المنزل)</strong>  
-  
-
           عزيزي العميل، نرجو تحديد موقع الانطلاق بدقة لإتمام الطلب بشكل صحيح.  
-  
-
           🔒 <strong style="color:var(--gold)">تنبيه أمان:</strong> موقعك يُستخدم فقط داخل النظام آلياً لمطابقة أقرب سائق ولا يُشارك مع أي طرف. ✨ خصوصيتك مشفّرة بالكامل.  
-  
-
           📌 فضلاً، قم بإرسال موقعك الآن للمتابعة.
         </div>
         <button class="gps-btn" id="gps-m-btn" onclick="getGPSFor('m-home','monthly')">📍 مشاركة موقع المنزل (GPS) — إجباري</button>
@@ -588,7 +582,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg );color:var(--txt);fon
       </div>
       <div class="pill s" style="margin-bottom:14px"><span class="blink"></span>يبحث عن كباتن قريبين</div>
       <div style="font-size:17px;font-weight:700;margin-bottom:6px;text-align:center">نبحث لك عن أفضل كابتن</div>
-      <div style="font-size:12px;color:var(--txt2 );text-align:center">فحص السائقين المعتمدين القريبين منك</div>
+      <div style="font-size:12px;color:var(--txt2  );text-align:center">فحص السائقين المعتمدين القريبين منك</div>
       <div style="font-size:40px;font-weight:700;color:var(--gold);margin:20px 0 4px;font-variant-numeric:tabular-nums" id="radar-count">00:00</div>
       <div style="font-size:10px;color:var(--txt2);letter-spacing:1px">وقت الانتظار</div>
     </div>
@@ -761,7 +755,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg );color:var(--txt);fon
       </p>
     </div>
     <p style="color:var(--txt2); font-size:12px; margin-bottom:30px;">شاكرين صبرك وتعاونك معنا، ونتمنى لك رحلة طيبة 🌹</p>
-        <button class="btn-p" onclick="sendToBot()">العودة للبوت لانتظار العروض 🔙</button>
+    <button class="btn-p" onclick="sendToBot()">العودة للبوت لانتظار العروض 🔙</button>
   </div>
 </div>
 
@@ -945,13 +939,25 @@ function dailyNext(){
       titleEl.textContent = '⏰ متى وقت الذهاب والعودة؟';
       descEl.textContent = 'مثال: الذهاب 7:00 ص والعودة 2:00 م';
       inputEl.placeholder = 'اكتب وقت الذهاب والعودة هنا...';
+      document.getElementById('return-time-container').style.display = 'block';
     } else {
       titleEl.textContent = '⏰ متى وقت الذهاب؟';
       descEl.textContent = 'مثال: الآن — أو 7:00 صباحاً — أو 5:00 م';
       inputEl.placeholder = 'وقت الذهاب...';
+      document.getElementById('return-time-container').style.display = 'none';
     }
   }
-  if(D.step===4){const v=document.getElementById('d-time').value.trim();if(!v){if(tg && tg.showAlert) tg.showAlert('⚠️ أدخل الوقت');return}D.time=v}
+  if(D.step===4){
+    const v=document.getElementById('d-time').value.trim();
+    if(!v){if(tg && tg.showAlert) tg.showAlert('⚠️ أدخل وقت الذهاب');return}
+    D.time=v;
+    
+    if(D.dir === 'ذهاب وعودة') {
+      const rv = document.getElementById('d-return-time').value.trim();
+      if(!rv){if(tg && tg.showAlert) tg.showAlert('⚠️ أدخل وقت العودة');return}
+      D.returnTime = rv;
+    }
+  }
   if(D.step===5){D.pax=parseInt(document.getElementById('d-pax').textContent)||1}
   if(D.step===6&&!D.bag){if(tg && tg.showAlert) tg.showAlert('⚠️ اختر إجابة الحقائب');return}
   if(D.step===7&&!D.gen){if(tg && tg.showAlert) tg.showAlert('⚠️ اختر تفضيل السائق');return}
@@ -959,23 +965,20 @@ function dailyNext(){
     document.getElementById('ds-from').textContent=D.from;
     document.getElementById('ds-to').textContent=D.to;
     document.getElementById('ds-dir').textContent=D.dir;
-    document.getElementById('ds-time').textContent=D.time;
+    
+    if(D.dir === 'ذهاب وعودة') {
+      document.getElementById('ds-time').textContent = `الذهاب: ${D.time} | العودة: ${D.returnTime}`;
+    } else {
+      document.getElementById('ds-time').textContent = D.time;
+    }
+    
     document.getElementById('ds-pax').textContent=D.pax+' شخص';
     document.getElementById('ds-bag').textContent=D.bag;
     document.getElementById('ds-gen').textContent=D.gen;
-    
-    // تعديل ملخص الطلب ليتناسب مع الاختيار
-    const summaryTimeLabel = document.getElementById('ds-time').previousElementSibling;
-    if(D.dir === 'ذهاب وعودة') {
-      summaryTimeLabel.textContent = 'وقت الذهاب والعودة';
-    } else {
-      summaryTimeLabel.textContent = 'وقت الذهاب';
-    }
   }
   D.step++;wShow('daily',D.step);
 }
 
- 
 // ── MONTHLY NEXT ─────────────────────────────────
 function monthlyNext(){
   if(M.step>M.total){submitWizard('monthly');return}
@@ -1027,8 +1030,8 @@ function submitWizard(wiz){
   const to   = wiz==='daily'?D.to:M.work;
 
   const payload = wiz==='daily'
-    ? {trip_type:'trip_weekly', from_location_text:from, to_location_text:to, from_latitude:ST.lat, from_longitude:ST.lng, trip_time:D.time, passengers_count:D.pax, gender_preference:D.gen, has_luggage:D.bag==='نعم', trip_direction:D.dir}
-    : {trip_type:'trip_monthly', from_location_text:from, to_location_text:to, from_latitude:ST.lat, from_longitude:ST.lng, pickup_time:M.pickup, work_start:M.wstart, return_time:M.wend, schedule_type:M.sched, days_count:M.days, passengers_count:M.pax, gender_preference:M.gen, driver_nationality:M.nat, details:M.notes};
+    ? {user_id:ST.userId, trip_type:'trip_weekly', from_location_text:from, to_location_text:to, from_latitude:ST.lat, from_longitude:ST.lng, trip_time:D.time, return_time:D.returnTime||'', passengers_count:D.pax, gender_preference:D.gen, has_luggage:D.bag==='نعم', trip_direction:D.dir}
+    : {user_id:ST.userId, trip_type:'trip_monthly', from_location_text:from, to_location_text:to, from_latitude:ST.lat, from_longitude:ST.lng, pickup_time:M.pickup, work_start:M.wstart, return_time:M.wend, schedule_type:M.sched, days_count:M.days, passengers_count:M.pax, gender_preference:M.gen, driver_nationality:M.nat, details:M.notes};
 
   window.finalPayload = JSON.stringify(payload);
   goTo('success');
@@ -1053,6 +1056,7 @@ function submitUrgent(){
   if(ST.car === 'vip') mappedCarType = 'VIP';
 
   const payload = {
+    user_id: ST.userId,
     trip_type: 'trip_urgent',
     from_location_text: f,
     to_location_text: t,
@@ -1184,3 +1188,6 @@ tg?.BackButton?.onClick?.(()=>{
   const t=map[a];if(t)goTo(t);else if(a==='s-home')tg.close();
 });
 </script>
+</body>
+</html>
+
