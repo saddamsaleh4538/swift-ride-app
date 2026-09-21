@@ -357,13 +357,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg );color:var(--txt);fon
         
         <div class="inp-wrap" style="margin-bottom:12px"><span class="inp-icon">🕐</span><input id="d-time" placeholder="وقت الذهاب..."></div>
         
-        <!-- حقل وقت العودة (يظهر فقط إذا اختار ذهاب وعودة) -->
-        <div id="return-time-container" style="display:none;">
-          <div style="font-size:14px;font-weight:700;color:var(--txt);margin-bottom:6px;margin-top:16px;">⏳ متى وقت العودة؟</div>
-          <div class="inp-wrap" style="margin-bottom:12px"><span class="inp-icon">🕑</span><input id="d-return-time" placeholder="وقت العودة..."></div>
-        </div>
-
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <!-- أزرار وقت الذهاب -->
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
           <div class="time-chip" onclick="document.getElementById('d-time').value='الآن'">الآن</div>
           <div class="time-chip" onclick="document.getElementById('d-time').value='6:00 صباحاً'">6:00 ص</div>
           <div class="time-chip" onclick="document.getElementById('d-time').value='7:00 صباحاً'">7:00 ص</div>
@@ -371,8 +366,26 @@ html,body{height:100%;overflow:hidden;background:var(--bg );color:var(--txt);fon
           <div class="time-chip" onclick="document.getElementById('d-time').value='12:00 ظهراً'">12:00 ظ</div>
           <div class="time-chip" onclick="document.getElementById('d-time').value='5:00 م'">5:00 م</div>
         </div>
+
+        <!-- حقل وقت العودة (يظهر فقط إذا اختار ذهاب وعودة) -->
+        <div id="return-time-container" style="display:none; border-top:1px solid rgba(200,164,90,.1); padding-top:16px;">
+          <div style="font-size:14px;font-weight:700;color:var(--txt);margin-bottom:6px;">⏳ متى وقت العودة؟</div>
+          <div class="inp-wrap" style="margin-bottom:12px"><span class="inp-icon">🕑</span><input id="d-return-time" placeholder="وقت العودة..."></div>
+          
+          <!-- أزرار وقت العودة -->
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <div class="time-chip" onclick="document.getElementById('d-return-time').value='1:00 ظهراً'">1:00 ظ</div>
+            <div class="time-chip" onclick="document.getElementById('d-return-time').value='2:00 ظهراً'">2:00 ظ</div>
+            <div class="time-chip" onclick="document.getElementById('d-return-time').value='3:00 عصراً'">3:00 ع</div>
+            <div class="time-chip" onclick="document.getElementById('d-return-time').value='4:00 عصراً'">4:00 ع</div>
+            <div class="time-chip" onclick="document.getElementById('d-return-time').value='5:00 م'">5:00 م</div>
+            <div class="time-chip" onclick="document.getElementById('d-return-time').value='9:00 م'">9:00 م</div>
+          </div>
+        </div>
+
       </div>
     </div>
+
     <!-- D5: عدد الأشخاص -->
     <div id="d5" class="wstep" style="display:none">
       <div class="card" style="margin-top:8px">
