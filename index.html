@@ -164,9 +164,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg );color:var(--txt);fon
   </div>
   <!-- car scene -->
   <div style="position: relative; padding: 0 16px; margin-bottom: 12px; flex-shrink: 0; overflow: hidden; border-radius: 12px;">
-    <!-- العلم السعودي كخلفية شفافة ومتحركة -->
-    <img src="https://media.tenor.com/7j4Z0J6Z8_QAAAAC/saudi-arabia-flag.gif" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.15; mix-blend-mode: screen; z-index: 0;">
-    <div style="position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(13,13,13,0.3 ) 0%, var(--bg) 100%); z-index: 1;"></div>
+    <!-- العلم السعودي كخلفية متحركة -->
+    <img src="https://media.tenor.com/7j4Z0J6Z8_QAAAAC/saudi-arabia-flag.gif" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.5; z-index: 0;">
+    <div style="position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(13,13,13,0.4 ) 0%, var(--bg) 100%); z-index: 1;"></div>
     
     <!-- رسمة السيارة والشارع -->
     <div style="position: relative; z-index: 2;">
@@ -201,6 +201,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg );color:var(--txt);fon
       </svg>
     </div>
   </div>
+
 
   <div class="scroll" style="padding-top:0">
     <div class="active-chip" id="active-chip" style="display:none" onclick="goTo('active' )">
@@ -791,7 +792,11 @@ document.addEventListener('click', function(e) {
   const activeScreen = document.querySelector('.screen.active')?.id;
   if(activeScreen === 's-request' || activeScreen === 's-daily' || activeScreen === 's-monthly') {
     if(e.target.tagName === 'INPUT' && (!ST.lat || !ST.lng)) {
-      toast('⚠️ عذراً، يرجى مشاركة موقعك (GPS) أولاً لفتح الحقول');
+      if(tg && tg.showAlert) {
+        tg.showAlert('⚠️ عذراً، يرجى مشاركة موقعك (GPS) أولاً لفتح الحقول وكتابة التفاصيل.');
+      } else {
+        alert('⚠️ عذراً، يرجى مشاركة موقعك (GPS) أولاً لفتح الحقول وكتابة التفاصيل.');
+      }
       e.target.blur(); // يمنع الكيبورد من الظهور
       e.preventDefault();
       e.stopPropagation();
@@ -834,7 +839,10 @@ function resetGPSBtn(id,text){
  
 // ── GPS ─────────────────────────────────────────
 function getGPSFor(inputId, type){
-  if(!navigator.geolocation){toast('⚠️ جهازك لا يدعم GPS');return}
+  if(!navigator.geolocation){
+    if(tg && tg.showAlert) tg.showAlert('⚠️ جهازك لا يدعم GPS');
+    return;
+  }
   const btnId = type==='monthly'?'gps-m-btn':type==='daily'?'gps-d-btn':'gps-urgent-btn';
   const btn=document.getElementById(btnId);
   if(btn){btn.textContent='⏳ جاري تحديد موقعك...';btn.style.opacity='.7'}
@@ -846,7 +854,7 @@ function getGPSFor(inputId, type){
     toast('✅ تم تحديد موقعك — اكتب وصفاً للدقة');
   },()=>{
     if(btn){btn.textContent=btn.textContent.replace('⏳','📍');btn.style.opacity='1'}
-    toast('⚠️ تعذر GPS — اكتب موقعك يدوياً بدقة');
+    if(tg && tg.showAlert) tg.showAlert('⚠️ تعذر GPS — تأكد من تفعيل الموقع في جهازك');
   },{timeout:10000,enableHighAccuracy:true});
 }
  
@@ -899,13 +907,24 @@ function wNext(wiz){
 // ── DAILY NEXT ───────────────────────────────────
 function dailyNext(){
   if(D.step>D.total){submitWizard('daily');return}
-  if(D.step===1){const v=document.getElementById('d-from').value.trim();if(!v){toast('⚠️ الموقع إجباري — شارك GPS أو اكتبه');return}D.from=v}
-  if(D.step===2){const v=document.getElementById('d-to').value.trim();if(!v){toast('⚠️ أدخل الوجهة');return}D.to=v}
-  if(D.step===3&&!D.dir){toast('⚠️ اختر نوع الرحلة');return}
-  if(D.step===4){const v=document.getElementById('d-time').value.trim();if(!v){toast('⚠️ أدخل وقت الذهاب');return}D.time=v}
+  if(D.step===1){
+    if(!ST.lat || !ST.lng){
+      if(tg && tg.showAlert) tg.showAlert('⚠️ إجباري: اضغط على زر (مشاركة موقعي الحالي GPS) أولاً');
+      return;
+    }
+    const v=document.getElementById('d-from').value.trim();
+    if(!v){
+      if(tg && tg.showAlert) tg.showAlert('⚠️ الموقع إجباري — شارك GPS أو اكتبه');
+      return;
+    }
+    D.from=v;
+  }
+  if(D.step===2){const v=document.getElementById('d-to').value.trim();if(!v){if(tg && tg.showAlert) tg.showAlert('⚠️ أدخل الوجهة');return}D.to=v}
+  if(D.step===3&&!D.dir){if(tg && tg.showAlert) tg.showAlert('⚠️ اختر نوع الرحلة');return}
+  if(D.step===4){const v=document.getElementById('d-time').value.trim();if(!v){if(tg && tg.showAlert) tg.showAlert('⚠️ أدخل وقت الذهاب');return}D.time=v}
   if(D.step===5){D.pax=parseInt(document.getElementById('d-pax').textContent)||1}
-  if(D.step===6&&!D.bag){toast('⚠️ اختر إجابة الحقائب');return}
-  if(D.step===7&&!D.gen){toast('⚠️ اختر تفضيل السائق');return}
+  if(D.step===6&&!D.bag){if(tg && tg.showAlert) tg.showAlert('⚠️ اختر إجابة الحقائب');return}
+  if(D.step===7&&!D.gen){if(tg && tg.showAlert) tg.showAlert('⚠️ اختر تفضيل السائق');return}
   if(D.step===D.total){
     document.getElementById('ds-from').textContent=D.from;
     document.getElementById('ds-to').textContent=D.to;
@@ -921,17 +940,28 @@ function dailyNext(){
 // ── MONTHLY NEXT ─────────────────────────────────
 function monthlyNext(){
   if(M.step>M.total){submitWizard('monthly');return}
-  if(M.step===1){const v=document.getElementById('m-home').value.trim();if(!v){toast('⚠️ الموقع إجباري — شارك GPS أو اكتبه بدقة');return}M.home=v}
-  if(M.step===2){const v=document.getElementById('m-work').value.trim();if(!v){toast('⚠️ أدخل موقع الدوام');return}M.work=v}
-  if(M.step===3){const v=document.getElementById('m-pickup').value.trim();if(!v){toast('⚠️ أدخل وقت الحضور للمنزل');return}M.pickup=v}
-  if(M.step===4){const v=document.getElementById('m-wstart').value.trim();if(!v){toast('⚠️ أدخل وقت بداية الدوام');return}M.wstart=v}
-  if(M.step===5){const v=document.getElementById('m-wend').value.trim();if(!v){toast('⚠️ أدخل وقت انتهاء الدوام');return}M.wend=v}
-  if(M.step===6&&!M.sched){toast('⚠️ اختر نظام الدوام');return}
+  if(M.step===1){
+    if(!ST.lat || !ST.lng){
+      if(tg && tg.showAlert) tg.showAlert('⚠️ إجباري: اضغط على زر (مشاركة موقع المنزل GPS) أولاً');
+      return;
+    }
+    const v=document.getElementById('m-home').value.trim();
+    if(!v){
+      if(tg && tg.showAlert) tg.showAlert('⚠️ الموقع إجباري — شارك GPS أو اكتبه بدقة');
+      return;
+    }
+    M.home=v;
+  }
+  if(M.step===2){const v=document.getElementById('m-work').value.trim();if(!v){if(tg && tg.showAlert) tg.showAlert('⚠️ أدخل موقع الدوام');return}M.work=v}
+  if(M.step===3){const v=document.getElementById('m-pickup').value.trim();if(!v){if(tg && tg.showAlert) tg.showAlert('⚠️ أدخل وقت الحضور للمنزل');return}M.pickup=v}
+  if(M.step===4){const v=document.getElementById('m-wstart').value.trim();if(!v){if(tg && tg.showAlert) tg.showAlert('⚠️ أدخل وقت بداية الدوام');return}M.wstart=v}
+  if(M.step===5){const v=document.getElementById('m-wend').value.trim();if(!v){if(tg && tg.showAlert) tg.showAlert('⚠️ أدخل وقت انتهاء الدوام');return}M.wend=v}
+  if(M.step===6&&!M.sched){if(tg && tg.showAlert) tg.showAlert('⚠️ اختر نظام الدوام');return}
   if(M.step===7){M.days=parseInt(document.getElementById('m-days').textContent)||5}
   if(M.step===8){M.pax=parseInt(document.getElementById('m-pax').textContent)||1}
-  if(M.step===9&&!M.gen){toast('⚠️ اختر تفضيل السائق');return}
+  if(M.step===9&&!M.gen){if(tg && tg.showAlert) tg.showAlert('⚠️ اختر تفضيل السائق');return}
   if(M.step===10){
-    if(!M.nat){toast('⚠️ اختر جنسية السائق');return}
+    if(!M.nat){if(tg && tg.showAlert) tg.showAlert('⚠️ اختر جنسية السائق');return}
     M.notes=document.getElementById('m-notes').value.trim()||'لا يوجد';
     document.getElementById('ms-nat').textContent=M.nat;
     document.getElementById('ms-gen').textContent=M.gen;
@@ -953,11 +983,6 @@ async function submitWizard(wiz){
   const btnId = wiz==='daily'?'d-next-btn':'m-next-btn';
   const btn=document.getElementById(btnId);
 
-  if(!ST.lat || !ST.lng){
-    toast('⚠️ إجباري: اضغط على زر (مشاركة موقعي الحالي GPS) أولاً');
-    return;
-  }
-
   btn.disabled=true;btn.textContent='⏳ جاري الإرسال...';
   const from = wiz==='daily'?D.from:M.home;
   const to   = wiz==='daily'?D.to:M.work;
@@ -972,7 +997,7 @@ async function submitWizard(wiz){
     console.log("تم الإرسال");
   }
   
-  goTo('success'); // الانتقال لشاشة النجاح بدلاً من الإغلاق
+  goTo('success');
   btn.disabled=false;
 }
 
@@ -982,11 +1007,11 @@ async function submitUrgent(){
   const t=document.getElementById('to-inp').value.trim();
 
   if(!ST.lat || !ST.lng){
-    toast('⚠️ إجباري: اضغط على زر (استخدم موقعي الحالي GPS) أولاً');
+    if(tg && tg.showAlert) tg.showAlert('⚠️ إجباري: اضغط على زر (استخدم موقعي الحالي GPS) أولاً');
     return;
   }
-  if(!f){toast('⚠️ أدخل موقع الانطلاق');return}
-  if(!t){toast('⚠️ أدخل الوجهة');return}
+  if(!f){if(tg && tg.showAlert) tg.showAlert('⚠️ أدخل موقع الانطلاق');return}
+  if(!t){if(tg && tg.showAlert) tg.showAlert('⚠️ أدخل الوجهة');return}
 
   const payload = {
     user_id: ST.userId,
@@ -1005,10 +1030,9 @@ async function submitUrgent(){
     console.log("تم الإرسال");
   }
   
-  goTo('success'); // الانتقال لشاشة النجاح بدلاً من الإغلاق
+  goTo('success');
 }
 
- 
 // ── RADAR ─────────────────────────────────────────
 function startRadar(){
   radarSec=0;clearInterval(radarTimer);
@@ -1073,11 +1097,16 @@ function nextStatus(){
 function finishTrip(){clearInterval(statusTimer);document.getElementById('active-chip').style.display='none';goTo('rating')}
  
 function shareLocation(){
-  if(!navigator.geolocation){toast('⚠️ جهازك لا يدعم GPS');return}
+  if(!navigator.geolocation){
+    if(tg && tg.showAlert) tg.showAlert('⚠️ جهازك لا يدعم GPS');
+    return;
+  }
   navigator.geolocation.getCurrentPosition(p=>{
     if(ST.tripId)fetch(API+'/share_location',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({trip_id:ST.tripId,user_id:ST.userId,lat:p.coords.latitude,lng:p.coords.longitude})}).catch(()=>{});
     toast('📍 تم إرسال موقعك للكابتن!');
-  },()=>toast('⚠️ تعذر تحديد الموقع'));
+  },()=>{
+    if(tg && tg.showAlert) tg.showAlert('⚠️ تعذر تحديد الموقع');
+  });
 }
  
 // ── RATING ───────────────────────────────────────
@@ -1098,8 +1127,11 @@ async function submitRating(){
  
 // ── UTILS ─────────────────────────────────────────
 function toast(msg){
-  const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');
-  clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2800);
+  const el=document.getElementById('toast');
+  el.textContent=msg;
+  el.classList.add('show');
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>el.classList.remove('show'),2800);
 }
 function nowTime(){return new Date().toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'})}
  
@@ -1110,5 +1142,3 @@ tg?.BackButton?.onClick?.(()=>{
   const t=map[a];if(t)goTo(t);else if(a==='s-home')tg.close();
 });
 </script>
-</body>
-</html>
