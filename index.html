@@ -163,33 +163,45 @@ html,body{height:100%;overflow:hidden;background:var(--bg );color:var(--txt);fon
 الذهاب اليوم؟</div>
   </div>
   <!-- car scene -->
-  <div style="padding:0 16px;margin-bottom:12px;flex-shrink:0">
-    <svg viewBox="0 0 368 118" width="100%" xmlns="http://www.w3.org/2000/svg">
-      <rect x="0" y="72" width="368" height="46" fill="#141414"/>
-      <line x1="0" y1="95" x2="368" y2="95" stroke="#C8A45A" stroke-width="1.5" stroke-dasharray="22,16" opacity=".35"/>
-      <ellipse cx="140" cy="108" rx="58" ry="5" fill="#C8A45A" opacity=".07"/>
-      <rect x="80" y="62" width="118" height="34" rx="5" fill="#1C1C1C" stroke="#C8A45A" stroke-width=".7" stroke-opacity=".35"/>
-      <path d="M100 62 Q112 41 150 39 Q175 39 186 47 L196 62Z" fill="#1A1A1A" stroke="#C8A45A" stroke-width=".5" stroke-opacity=".25"/>
-      <path d="M106 61 Q114 46 149 44 L161 61Z" fill="#152030" opacity=".9"/>
-      <path d="M163 61 L184 51 L193 61Z" fill="#152030" opacity=".9"/>
-      <ellipse cx="199" cy="77" rx="5" ry="3.5" fill="#E8C87A" opacity=".85"/>
-      <ellipse cx="199" cy="77" rx="10" ry="6" fill="#E8C87A" opacity=".1"/>
-      <rect x="80" y="74" width="6" height="8" rx="2" fill="#E74C3C" opacity=".75"/>
-      <circle cx="110" cy="96" r="11" fill="#0F0F0F" stroke="#3A3A3A" stroke-width="1.5"/>
-      <circle cx="110" cy="96" r="5.5" fill="#1E1E1E" stroke="#C8A45A" stroke-width=".7" stroke-opacity=".45"/>
-      <circle cx="170" cy="96" r="11" fill="#0F0F0F" stroke="#3A3A3A" stroke-width="1.5"/>
-      <circle cx="170" cy="96" r="5.5" fill="#1E1E1E" stroke="#C8A45A" stroke-width=".7" stroke-opacity=".45"/>
-      <line x1="150" y1="62" x2="148" y2="96" stroke="#C8A45A" stroke-width=".5" stroke-opacity=".25"/>
-      <rect x="10" y="22" width="18" height="50" fill="#1A1A1A" opacity=".7" rx="1"/>
-      <rect x="33" y="34" width="22" height="38" fill="#181818" opacity=".6" rx="1"/>
-      <circle cx="312" cy="14" r="8" fill="#C8A45A"/>
-      <circle cx="312" cy="14" r="3" fill="#0D0D0D"/>
-      <line x1="312" y1="22" x2="312" y2="34" stroke="#C8A45A" stroke-width="2" stroke-linecap="round"/>
-      <path d="M210 78 Q255 58 298 32" stroke="#C8A45A" stroke-width="1.5" stroke-dasharray="5,5" fill="none" opacity=".35"/>
-      <rect x="265" y="10" width="54" height="18" rx="9" fill="#C8A45A" opacity=".1"/>
-      <text x="292" y="23" text-anchor="middle" fill="#C8A45A" font-size="10" font-family="Tajawal" font-weight="700">3.2 كم</text>
-    </svg>
+  <div style="position: relative; padding: 0 16px; margin-bottom: 12px; flex-shrink: 0; overflow: hidden; border-radius: 12px;">
+    <!-- العلم السعودي كخلفية شفافة ومتحركة -->
+    <img src="https://media.tenor.com/7j4Z0J6Z8_QAAAAC/saudi-arabia-flag.gif" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.15; mix-blend-mode: screen; z-index: 0;">
+    <div style="position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(13,13,13,0.3 ) 0%, var(--bg) 100%); z-index: 1;"></div>
+    
+    <!-- رسمة السيارة والشارع -->
+    <div style="position: relative; z-index: 2;">
+      <svg viewBox="0 0 368 118" width="100%" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="72" width="368" height="46" fill="#141414"/>
+        <line x1="0" y1="95" x2="368" y2="95" stroke="#C8A45A" stroke-width="1.5" stroke-dasharray="22,16" opacity=".35"/>
+        <ellipse cx="140" cy="108" rx="58" ry="5" fill="#C8A45A" opacity=".07"/>
+        <rect x="80" y="62" width="118" height="34" rx="5" fill="#1C1C1C" stroke="#C8A45A" stroke-width=".7" stroke-opacity=".35"/>
+        
+        <!-- النص الجديد على السيارة -->
+        <text x="139" y="83" text-anchor="middle" fill="#C8A45A" font-size="11" font-family="Tajawal" font-weight="700">المتنقل الذكي</text>
+
+        <path d="M100 62 Q112 41 150 39 Q175 39 186 47 L196 62Z" fill="#1A1A1A" stroke="#C8A45A" stroke-width=".5" stroke-opacity=".25"/>
+        <path d="M106 61 Q114 46 149 44 L161 61Z" fill="#152030" opacity=".9"/>
+        <path d="M163 61 L184 51 L193 61Z" fill="#152030" opacity=".9"/>
+        <ellipse cx="199" cy="77" rx="5" ry="3.5" fill="#E8C87A" opacity=".85"/>
+        <ellipse cx="199" cy="77" rx="10" ry="6" fill="#E8C87A" opacity=".1"/>
+        <rect x="80" y="74" width="6" height="8" rx="2" fill="#E74C3C" opacity=".75"/>
+        <circle cx="110" cy="96" r="11" fill="#0F0F0F" stroke="#3A3A3A" stroke-width="1.5"/>
+        <circle cx="110" cy="96" r="5.5" fill="#1E1E1E" stroke="#C8A45A" stroke-width=".7" stroke-opacity=".45"/>
+        <circle cx="170" cy="96" r="11" fill="#0F0F0F" stroke="#3A3A3A" stroke-width="1.5"/>
+        <circle cx="170" cy="96" r="5.5" fill="#1E1E1E" stroke="#C8A45A" stroke-width=".7" stroke-opacity=".45"/>
+        <line x1="150" y1="62" x2="148" y2="96" stroke="#C8A45A" stroke-width=".5" stroke-opacity=".25"/>
+        <rect x="10" y="22" width="18" height="50" fill="#1A1A1A" opacity=".7" rx="1"/>
+        <rect x="33" y="34" width="22" height="38" fill="#181818" opacity=".6" rx="1"/>
+        <circle cx="312" cy="14" r="8" fill="#C8A45A"/>
+        <circle cx="312" cy="14" r="3" fill="#0D0D0D"/>
+        <line x1="312" y1="22" x2="312" y2="34" stroke="#C8A45A" stroke-width="2" stroke-linecap="round"/>
+        <path d="M210 78 Q255 58 298 32" stroke="#C8A45A" stroke-width="1.5" stroke-dasharray="5,5" fill="none" opacity=".35"/>
+        <rect x="265" y="10" width="54" height="18" rx="9" fill="#C8A45A" opacity=".1"/>
+        <text x="292" y="23" text-anchor="middle" fill="#C8A45A" font-size="10" font-family="Tajawal" font-weight="700">3.2 كم</text>
+      </svg>
+    </div>
   </div>
+
   <div class="scroll" style="padding-top:0">
     <div class="active-chip" id="active-chip" style="display:none" onclick="goTo('active' )">
       <span style="font-size:22px">🚗</span>
@@ -767,10 +779,13 @@ const STATUSES=[
 ];
 const RLABELS=['','سيء جداً 😤','سيء 😕','مقبول 😐','جيد 😊','ممتاز جداً 🌟'];
  
-startRadar
-const hr=new Date().getHours();
-document.getElementById('home-greet').textContent=hr<12?'صباح الخير 👋':hr<17?'مساء الخير 👋':'مساء النور 👋';
- 
+// greeting
+const hr = new Date().getHours();
+const tgUser = tg?.initDataUnsafe?.user;
+const userName = tgUser ? tgUser.first_name : 'ضيفنا الغالي';
+const greeting = hr < 12 ? 'صباح الخير' : hr < 17 ? 'مساء الخير' : 'مساء النور';
+document.getElementById('home-greet').textContent = greeting + '، ' + userName + ' 👋';
+
 // ── NAVIGATION ──────────────────────────────────
 function goTo(id){
   document.querySelectorAll('.screen').forEach(s=>{
@@ -857,7 +872,7 @@ function wSel(prefix,key,btnId,val){
   document.getElementById(btnId).classList.add('sel');
   if(prefix==='d'){D[key]=val} else {M[key]=val}
 }
- 
+
 function wBack(wiz){
   if(wiz==='daily'){if(D.step<=1){goTo('home');return}D.step--;wShow('daily',D.step)}
   else{if(M.step<=1){goTo('home');return}M.step--;wShow('monthly',M.step)}
@@ -924,25 +939,37 @@ function monthlyNext(){
 function submitWizard(wiz){
   const btnId = wiz==='daily'?'d-next-btn':'m-next-btn';
   const btn=document.getElementById(btnId);
+
+  if(!ST.lat || !ST.lng){
+    toast('⚠️ إجباري: اضغط على زر (مشاركة موقعي الحالي GPS) أولاً');
+    return;
+  }
+
   btn.disabled=true;btn.textContent='⏳ جاري الإرسال...';
   const from = wiz==='daily'?D.from:M.home;
   const to   = wiz==='daily'?D.to:M.work;
-  
+
   const payload = wiz==='daily'
     ? {trip_type:'trip_weekly', from_location_text:from, to_location_text:to, from_latitude:ST.lat, from_longitude:ST.lng, trip_time:D.time, passengers_count:D.pax, gender_preference:D.gen, has_luggage:D.bag==='نعم', trip_direction:D.dir}
     : {trip_type:'trip_monthly', from_location_text:from, to_location_text:to, from_latitude:ST.lat, from_longitude:ST.lng, pickup_time:M.pickup, work_start:M.wstart, return_time:M.wend, schedule_type:M.sched, days_count:M.days, passengers_count:M.pax, gender_preference:M.gen, driver_nationality:M.nat, details:M.notes};
-  
+
   tg.sendData(JSON.stringify(payload));
-  tg.close();
+  goTo('success');
 }
- 
+
 // ── SUBMIT URGENT ────────────────────────────────
 function submitUrgent(){
   const f=document.getElementById('from-inp').value.trim();
   const t=document.getElementById('to-inp').value.trim();
+
+  if(!ST.lat || !ST.lng){
+    toast('⚠️ إجباري: اضغط على زر (استخدم موقعي الحالي GPS) أولاً');
+    return;
+  }
+
   if(!f){toast('⚠️ أدخل موقع الانطلاق');return}
   if(!t){toast('⚠️ أدخل الوجهة');return}
-  
+
   const payload = {
     trip_type: 'trip_urgent',
     from_location_text: f,
@@ -952,10 +979,11 @@ function submitUrgent(){
     car_type: ST.car,
     details: document.getElementById('notes-inp').value || 'لا يوجد'
   };
-  
+
   tg.sendData(JSON.stringify(payload));
-  tg.close();
+  goTo('success');
 }
+
  
 // ── RADAR ─────────────────────────────────────────
 function startRadar(){
