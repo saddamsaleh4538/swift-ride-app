@@ -164,21 +164,18 @@ html,body{height:100%;overflow:hidden;background:var(--bg );color:var(--txt);fon
   </div>
   <!-- car scene -->
   <div style="position: relative; padding: 0 16px; margin-bottom: 12px; flex-shrink: 0; overflow: hidden; border-radius: 12px;">
-    <!-- العلم السعودي كخلفية متحركة -->
+    <!-- العلم السعودي -->
     <img src="https://media.tenor.com/7j4Z0J6Z8_QAAAAC/saudi-arabia-flag.gif" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.5; z-index: 0;">
     <div style="position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(13,13,13,0.4 ) 0%, var(--bg) 100%); z-index: 1;"></div>
     
-    <!-- رسمة السيارة والشارع -->
+    <!-- رسمة السيارة -->
     <div style="position: relative; z-index: 2;">
       <svg viewBox="0 0 368 118" width="100%" xmlns="http://www.w3.org/2000/svg">
         <rect x="0" y="72" width="368" height="46" fill="#141414"/>
         <line x1="0" y1="95" x2="368" y2="95" stroke="#C8A45A" stroke-width="1.5" stroke-dasharray="22,16" opacity=".35"/>
         <ellipse cx="140" cy="108" rx="58" ry="5" fill="#C8A45A" opacity=".07"/>
         <rect x="80" y="62" width="118" height="34" rx="5" fill="#1C1C1C" stroke="#C8A45A" stroke-width=".7" stroke-opacity=".35"/>
-        
-        <!-- النص الجديد على السيارة -->
         <text x="139" y="83" text-anchor="middle" fill="#C8A45A" font-size="11" font-family="Tajawal" font-weight="700">المتنقل الذكي</text>
-
         <path d="M100 62 Q112 41 150 39 Q175 39 186 47 L196 62Z" fill="#1A1A1A" stroke="#C8A45A" stroke-width=".5" stroke-opacity=".25"/>
         <path d="M106 61 Q114 46 149 44 L161 61Z" fill="#152030" opacity=".9"/>
         <path d="M163 61 L184 51 L193 61Z" fill="#152030" opacity=".9"/>
@@ -201,9 +198,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg );color:var(--txt);fon
       </svg>
     </div>
   </div>
-
-
   <div class="scroll" style="padding-top:0">
+
     <div class="active-chip" id="active-chip" style="display:none" onclick="goTo('active' )">
       <span style="font-size:22px">🚗</span>
       <div style="flex:1"><div style="font-size:13px;font-weight:700">رحلة نشطة</div><div class="pill a" style="margin-top:4px"><span class="blink"></span>جارٍ التنفيذ</div></div>
@@ -753,7 +749,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg );color:var(--txt);fon
       </p>
     </div>
     <p style="color:var(--txt2); font-size:12px; margin-bottom:30px;">شاكرين صبرك وتعاونك معنا، ونتمنى لك رحلة طيبة 🌹</p>
-    <button class="btn-p" onclick="tg.close()">العودة للبوت لانتظار العروض 🔙</button>
+        <button class="btn-p" onclick="sendToBot()">العودة للبوت لانتظار العروض 🔙</button>
   </div>
 </div>
 
@@ -771,6 +767,9 @@ const ST = {car:'economy',tripId:null,userId:tg?.initDataUnsafe?.user?.id||0,lat
 const D  = {step:1,total:7,from:'',to:'',dir:'',time:'',pax:1,bag:'',gen:''};
 const M  = {step:1,total:10,home:'',work:'',pickup:'',wstart:'',wend:'',sched:'',days:5,pax:1,gen:'',nat:'',notes:''};
 let radarTimer=null,radarSec=0,pollTimer=null,statusTimer=null,toastT=null;
+
+// متغير لحفظ الطلب وإرساله عند الضغط على زر العودة للبوت
+window.finalPayload = null; 
  
 const STATUSES=[
   {icon:'🚗',title:'الكابتن في طريقه إليك',sub:'انتظره في موقعك المحدد'},
@@ -847,11 +846,11 @@ function getGPSFor(inputId, type){
   const btn=document.getElementById(btnId);
   if(btn){btn.textContent='⏳ جاري تحديد موقعك...';btn.style.opacity='.7'}
   navigator.geolocation.getCurrentPosition(p=>{
-    const txt=`موقعي الحالي (${p.coords.latitude.toFixed(4)}, ${p.coords.longitude.toFixed(4)})`;
-    document.getElementById(inputId).value=txt;
     ST.lat=p.coords.latitude;ST.lng=p.coords.longitude;
-    if(btn){btn.textContent='✅ تم تحديد الموقع بنجاح!';btn.className='gps-btn done';btn.style.opacity='1'}
-    toast('✅ تم تحديد موقعك — اكتب وصفاً للدقة');
+    if(btn){btn.textContent='✅ تم تحديد الموقع بنجاح! (اكتب الوصف الآن)';btn.className='gps-btn done';btn.style.opacity='1'}
+    document.getElementById(inputId).placeholder = 'اكتب اسم الحي أو المعلم هنا...';
+    document.getElementById(inputId).value = ''; // لا نكتب الأرقام لكي يكتب العميل براحته
+    toast('✅ تم تحديد موقعك بنجاح');
   },()=>{
     if(btn){btn.textContent=btn.textContent.replace('⏳','📍');btn.style.opacity='1'}
     if(tg && tg.showAlert) tg.showAlert('⚠️ تعذر GPS — تأكد من تفعيل الموقع في جهازك');
@@ -888,9 +887,10 @@ function wShow(wiz,n){
 }
  
 function wSel(prefix,key,btnId,val){
-  const groupChar = btnId.split('-')[1];
-  document.querySelectorAll(`[id^="${prefix}${groupChar}-"]`).forEach(b=>b.classList.remove('sel'));
-  document.getElementById(btnId).classList.add('sel');
+  const btn = document.getElementById(btnId);
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.choice-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
   if(prefix==='d'){D[key]=val} else {M[key]=val}
 }
 
@@ -920,7 +920,14 @@ function dailyNext(){
     D.from=v;
   }
   if(D.step===2){const v=document.getElementById('d-to').value.trim();if(!v){if(tg && tg.showAlert) tg.showAlert('⚠️ أدخل الوجهة');return}D.to=v}
-  if(D.step===3&&!D.dir){if(tg && tg.showAlert) tg.showAlert('⚠️ اختر نوع الرحلة');return}
+  if(D.step===3){
+    if(!D.dir){if(tg && tg.showAlert) tg.showAlert('⚠️ اختر نوع الرحلة');return}
+    if(D.dir === 'ذهاب وعودة') {
+      document.querySelector('#d4 .card div').textContent = '⏰ متى وقت الذهاب والعودة؟ (مثال: الذهاب 7ص والعودة 2م)';
+    } else {
+      document.querySelector('#d4 .card div').textContent = '⏰ متى وقت الذهاب؟';
+    }
+  }
   if(D.step===4){const v=document.getElementById('d-time').value.trim();if(!v){if(tg && tg.showAlert) tg.showAlert('⚠️ أدخل وقت الذهاب');return}D.time=v}
   if(D.step===5){D.pax=parseInt(document.getElementById('d-pax').textContent)||1}
   if(D.step===6&&!D.bag){if(tg && tg.showAlert) tg.showAlert('⚠️ اختر إجابة الحقائب');return}
@@ -979,30 +986,25 @@ function monthlyNext(){
 }
  
 // ── SUBMIT WIZARD ────────────────────────────────
-async function submitWizard(wiz){
+function submitWizard(wiz){
   const btnId = wiz==='daily'?'d-next-btn':'m-next-btn';
   const btn=document.getElementById(btnId);
 
-  btn.disabled=true;btn.textContent='⏳ جاري الإرسال...';
+  btn.disabled=true;btn.textContent='⏳ جاري التجهيز...';
   const from = wiz==='daily'?D.from:M.home;
   const to   = wiz==='daily'?D.to:M.work;
 
   const payload = wiz==='daily'
-    ? {user_id:ST.userId, trip_type:'trip_weekly', from_location_text:from, to_location_text:to, from_latitude:ST.lat, from_longitude:ST.lng, trip_time:D.time, passengers_count:D.pax, gender_preference:D.gen, has_luggage:D.bag==='نعم', trip_direction:D.dir}
-    : {user_id:ST.userId, trip_type:'trip_monthly', from_location_text:from, to_location_text:to, from_latitude:ST.lat, from_longitude:ST.lng, pickup_time:M.pickup, work_start:M.wstart, return_time:M.wend, schedule_type:M.sched, days_count:M.days, passengers_count:M.pax, gender_preference:M.gen, driver_nationality:M.nat, details:M.notes};
+    ? {trip_type:'trip_weekly', from_location_text:from, to_location_text:to, from_latitude:ST.lat, from_longitude:ST.lng, trip_time:D.time, passengers_count:D.pax, gender_preference:D.gen, has_luggage:D.bag==='نعم', trip_direction:D.dir}
+    : {trip_type:'trip_monthly', from_location_text:from, to_location_text:to, from_latitude:ST.lat, from_longitude:ST.lng, pickup_time:M.pickup, work_start:M.wstart, return_time:M.wend, schedule_type:M.sched, days_count:M.days, passengers_count:M.pax, gender_preference:M.gen, driver_nationality:M.nat, details:M.notes};
 
-  try {
-    await fetch(API+'/request_trip', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
-  } catch(e) {
-    console.log("تم الإرسال");
-  }
-  
+  window.finalPayload = JSON.stringify(payload);
   goTo('success');
   btn.disabled=false;
 }
 
 // ── SUBMIT URGENT ────────────────────────────────
-async function submitUrgent(){
+function submitUrgent(){
   const f=document.getElementById('from-inp').value.trim();
   const t=document.getElementById('to-inp').value.trim();
 
@@ -1014,7 +1016,6 @@ async function submitUrgent(){
   if(!t){if(tg && tg.showAlert) tg.showAlert('⚠️ أدخل الوجهة');return}
 
   const payload = {
-    user_id: ST.userId,
     trip_type: 'trip_urgent',
     from_location_text: f,
     to_location_text: t,
@@ -1024,13 +1025,17 @@ async function submitUrgent(){
     details: document.getElementById('notes-inp').value || 'لا يوجد'
   };
 
-  try {
-    await fetch(API+'/request_trip', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
-  } catch(e) {
-    console.log("تم الإرسال");
-  }
-  
+  window.finalPayload = JSON.stringify(payload);
   goTo('success');
+}
+
+// ── SEND TO BOT (زر شاشة النجاح) ─────────────────
+function sendToBot() {
+  if(window.finalPayload && tg && tg.sendData) {
+    tg.sendData(window.finalPayload);
+  } else {
+    if(tg) tg.close();
+  }
 }
 
 // ── RADAR ─────────────────────────────────────────
