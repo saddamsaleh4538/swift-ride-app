@@ -15,7 +15,7 @@
   --green:#2ECC71;--red:#E74C3C;--r:14px;--r2:10px;
 }
 html,body{height:100%;overflow:hidden;background:var(--bg );color:var(--txt);font-family:'Tajawal',sans-serif;direction:rtl;-webkit-tap-highlight-color:transparent;user-select:none}
-.app{width:100%;max-width:430px;margin:0 auto;height:100vh;display:flex;flex-direction:column;position:relative;overflow:hidden}
+..app{width:100%;max-width:430px;margin:0 auto;height:100vh;height:var(--tg-viewport-height, 100vh);display:flex;flex-direction:column;position:relative;overflow:hidden}
 .screen{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transform:translateY(28px);transition:all .38s cubic-bezier(.4,0,.2,1)}
 .screen.active{opacity:1;pointer-events:all;transform:translateY(0)}
 .screen.out{opacity:0;transform:translateY(-18px);pointer-events:none}
@@ -776,7 +776,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg );color:var(--txt);fon
 <script>
 'use strict';
 const tg = window.Telegram?.WebApp;
-if(tg){tg.ready();tg.expand();tg.setHeaderColor('#0D0D0D');tg.setBackgroundColor('#0D0D0D')}
+if(tg){   tg.ready();   tg.expand();   tg.setHeaderColor('#0D0D0D');   tg.setBackgroundColor('#0D0D0D');   document.documentElement.style.setProperty('--tg-viewport-height', tg.viewportHeight + 'px');   tg.onEvent('viewportChanged', function() {     document.documentElement.style.setProperty('--tg-viewport-height', tg.viewportHeight + 'px');   }); }
 const API = '/api';
 const ST = {car:'سيارة صغيرة',tripId:null,userId:tg?.initDataUnsafe?.user?.id||0,lat:null,lng:null,
             tripStatus:1,stars:0,dname:'',dcar:'',dplate:'',dprice:''};
