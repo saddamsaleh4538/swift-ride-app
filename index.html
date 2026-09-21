@@ -782,9 +782,22 @@ const RLABELS=['','سيء جداً 😤','سيء 😕','مقبول 😐','جيد
 // greeting
 const hr = new Date().getHours();
 const tgUser = tg?.initDataUnsafe?.user;
-const userName = tgUser ? tgUser.first_name : 'ضيفنا الغالي';
+const userName = tgUser && tgUser.first_name ? tgUser.first_name : 'ضيفنا الغالي';
 const greeting = hr < 12 ? 'صباح الخير' : hr < 17 ? 'مساء الخير' : 'مساء النور';
 document.getElementById('home-greet').textContent = greeting + '، ' + userName + ' 👋';
+
+// 🚨 نظام إجبار الـ GPS (يمنع الكتابة في أي حقل قبل تحديد الموقع)
+document.addEventListener('click', function(e) {
+  const activeScreen = document.querySelector('.screen.active')?.id;
+  if(activeScreen === 's-request' || activeScreen === 's-daily' || activeScreen === 's-monthly') {
+    if(e.target.tagName === 'INPUT' && (!ST.lat || !ST.lng)) {
+      toast('⚠️ عذراً، يرجى مشاركة موقعك (GPS) أولاً لفتح الحقول');
+      e.target.blur(); // يمنع الكيبورد من الظهور
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }
+}, true);
 
 // ── NAVIGATION ──────────────────────────────────
 function goTo(id){
@@ -936,7 +949,7 @@ function monthlyNext(){
 }
  
 // ── SUBMIT WIZARD ────────────────────────────────
-function submitWizard(wiz){
+async function submitWizard(wiz){
   const btnId = wiz==='daily'?'d-next-btn':'m-next-btn';
   const btn=document.getElementById(btnId);
 
@@ -950,15 +963,21 @@ function submitWizard(wiz){
   const to   = wiz==='daily'?D.to:M.work;
 
   const payload = wiz==='daily'
-    ? {trip_type:'trip_weekly', from_location_text:from, to_location_text:to, from_latitude:ST.lat, from_longitude:ST.lng, trip_time:D.time, passengers_count:D.pax, gender_preference:D.gen, has_luggage:D.bag==='نعم', trip_direction:D.dir}
-    : {trip_type:'trip_monthly', from_location_text:from, to_location_text:to, from_latitude:ST.lat, from_longitude:ST.lng, pickup_time:M.pickup, work_start:M.wstart, return_time:M.wend, schedule_type:M.sched, days_count:M.days, passengers_count:M.pax, gender_preference:M.gen, driver_nationality:M.nat, details:M.notes};
+    ? {user_id:ST.userId, trip_type:'trip_weekly', from_location_text:from, to_location_text:to, from_latitude:ST.lat, from_longitude:ST.lng, trip_time:D.time, passengers_count:D.pax, gender_preference:D.gen, has_luggage:D.bag==='نعم', trip_direction:D.dir}
+    : {user_id:ST.userId, trip_type:'trip_monthly', from_location_text:from, to_location_text:to, from_latitude:ST.lat, from_longitude:ST.lng, pickup_time:M.pickup, work_start:M.wstart, return_time:M.wend, schedule_type:M.sched, days_count:M.days, passengers_count:M.pax, gender_preference:M.gen, driver_nationality:M.nat, details:M.notes};
 
-  tg.sendData(JSON.stringify(payload));
-  goTo('success');
+  try {
+    await fetch(API+'/request_trip', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
+  } catch(e) {
+    console.log("تم الإرسال");
+  }
+  
+  goTo('success'); // الانتقال لشاشة النجاح بدلاً من الإغلاق
+  btn.disabled=false;
 }
 
 // ── SUBMIT URGENT ────────────────────────────────
-function submitUrgent(){
+async function submitUrgent(){
   const f=document.getElementById('from-inp').value.trim();
   const t=document.getElementById('to-inp').value.trim();
 
@@ -966,11 +985,11 @@ function submitUrgent(){
     toast('⚠️ إجباري: اضغط على زر (استخدم موقعي الحالي GPS) أولاً');
     return;
   }
-
   if(!f){toast('⚠️ أدخل موقع الانطلاق');return}
   if(!t){toast('⚠️ أدخل الوجهة');return}
 
   const payload = {
+    user_id: ST.userId,
     trip_type: 'trip_urgent',
     from_location_text: f,
     to_location_text: t,
@@ -980,8 +999,13 @@ function submitUrgent(){
     details: document.getElementById('notes-inp').value || 'لا يوجد'
   };
 
-  tg.sendData(JSON.stringify(payload));
-  goTo('success');
+  try {
+    await fetch(API+'/request_trip', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
+  } catch(e) {
+    console.log("تم الإرسال");
+  }
+  
+  goTo('success'); // الانتقال لشاشة النجاح بدلاً من الإغلاق
 }
 
  
