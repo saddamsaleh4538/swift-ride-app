@@ -1,206 +1,242 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>VIP Taxi - المتنقل الذكي</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Swift Ride - المتنقل الذكي</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap" rel="stylesheet">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700;900&display=swap' );
- 
-  :root {
-    --gold: #C9A84C; --gold-light: #E8C97A; --gold-dark: #8B6914;
-    --black: #0A0A0A; --dark: #111111; --dark2: #1A1A1A; --dark3: #222222;
-    --white: #F5F0E8; --white-dim: rgba(245,240,232,0.7);
-    --radius: 16px; --radius-sm: 10px;
-  }
- 
-  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  html, body { height: 100%; background: var(--black); color: var(--white); font-family: 'Cairo', sans-serif; overflow: hidden; }
- 
-  .screen { position: absolute; inset: 0; display: flex; flex-direction: column; opacity: 0; pointer-events: none; transform: translateY(20px); transition: all 0.3s ease; overflow-y: auto; padding-bottom: 20px; }
-  .screen.active { opacity: 1; pointer-events: all; transform: translateY(0); }
-  .screen::-webkit-scrollbar { width: 3px; }
-  .screen::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 2px; }
- 
-  .header { padding: 16px 20px 12px; display: flex; align-items: center; gap: 12px; background: linear-gradient(180deg, #0F0F0F 0%, transparent 100%); position: sticky; top: 0; z-index: 10; backdrop-filter: blur(8px); }
-  .header-logo { width: 38px; height: 38px; background: linear-gradient(135deg, var(--gold), var(--gold-dark)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-  .header-title { font-size: 17px; font-weight: 900; color: var(--gold-light); }
-  .back-btn { margin-right: auto; width: 34px; height: 34px; background: rgba(245,240,232,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--gold); }
- 
-  .service-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 20px; }
-  .service-card { background: linear-gradient(145deg, var(--dark2), var(--dark3)); border: 1px solid rgba(201,168,76,0.15); border-radius: var(--radius); padding: 18px 14px; text-align: center; cursor: pointer; }
-  .service-card.featured { grid-column: span 2; background: linear-gradient(135deg, #1C1600, #2A2000); border-color: rgba(201,168,76,0.4); display: flex; align-items: center; gap: 16px; text-align: right; }
-  .service-icon { font-size: 32px; margin-bottom: 10px; display: block; }
-  .service-card.featured .service-icon { margin: 0; font-size: 40px; }
-  .service-name { font-size: 13px; font-weight: 700; }
-  .service-card.featured .service-name { font-size: 16px; }
- 
-  .form-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 14px; }
-  .field-label { font-size: 12px; font-weight: 700; color: var(--gold); margin-bottom: 6px; }
-  .field-input { width: 100%; background: var(--dark3); border: 1px solid rgba(201,168,76,0.2); border-radius: var(--radius-sm); padding: 13px 14px; font-size: 14px; color: var(--white); outline: none; font-family: 'Cairo', sans-serif; }
-  .location-btn { display: flex; align-items: center; gap: 10px; background: rgba(201,168,76,0.1); border: 1px dashed rgba(201,168,76,0.4); border-radius: var(--radius-sm); padding: 13px; cursor: pointer; color: var(--gold-light); font-weight: 700; font-size: 13px; }
-  
-  .btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #0A0800; border: none; border-radius: var(--radius-sm); padding: 16px; font-size: 15px; font-weight: 900; width: 100%; cursor: pointer; font-family: 'Cairo', sans-serif; margin-top: 10px; }
-  .btn-secondary { background: transparent; color: var(--gold); border: 1px solid rgba(201,168,76,0.35); border-radius: var(--radius-sm); padding: 14px; font-size: 14px; font-weight: 700; width: 100%; cursor: pointer; font-family: 'Cairo', sans-serif; margin-top: 10px; }
- 
-  .ticket-card { background: linear-gradient(145deg, #1C1500, #251C00); border: 1px solid var(--gold); border-radius: var(--radius); padding: 20px; margin: 20px; box-shadow: 0 0 20px rgba(201,168,76,0.2); }
-  .ticket-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px; }
-  .ticket-label { color: var(--white-dim); }
-  .ticket-val { font-weight: 700; color: var(--gold-light); text-align: left; max-width: 60%; }
-  
-  .dynamic-section { display: none; flex-direction: column; gap: 14px; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); }
-  .dynamic-section.active { display: flex; }
-  
-  .file-upload-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
-  .file-upload-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; height: 100%; }
-  .btn-upload { background: rgba(201,168,76,0.1); border: 1px dashed var(--gold); color: var(--gold-light); padding: 12px; text-align: center; border-radius: var(--radius-sm); font-weight: 700; font-size: 13px; }
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0A0A0B;--bg2:#171614;--bg3:#201E1A;--bg4:#26231D;
+  --gold:#C8A45A;--gold2:#F2D89A;--gold3:#8A6A2A;--gold-hi:#FFE9B8;--gold-dp:#6E5220;
+  --txt:#F5EFDF;--txt2:#A39A88;--txt3:#655D4F;
+  --green:#2ECC71;--red:#E74C3C;--r:16px;--r2:12px;
+  --ease:cubic-bezier(.16,1,.3,1 );
+  --shadow-card:0 10px 30px -12px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.03);
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font-family:'Tajawal',sans-serif;direction:rtl;-webkit-tap-highlight-color:transparent;user-select:none;}
+body{
+  background: radial-gradient(120% 60% at 50% -10%, rgba(200,164,90,.10), transparent 60%), var(--bg);
+}
+.app{
+  width:100%;max-width:430px;margin:0 auto;height:100dvh;
+  display:flex;flex-direction:column;position:relative;overflow:hidden;
+}
+.screen{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  opacity:0;pointer-events:none;transform:translateY(20px);
+  transition:all .4s var(--ease);
+}
+.screen.active{opacity:1;pointer-events:all;transform:translateY(0);}
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:0 16px 32px;position:relative;}
+::-webkit-scrollbar{width:2px}::-webkit-scrollbar-thumb{background:var(--gold3);border-radius:2px}
+
+/* التوب بار واللوجو */
+.topbar{padding:16px 18px 12px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;}
+.logo{font-size:12px;letter-spacing:2px;font-weight:700;background:linear-gradient(90deg,var(--gold-hi),var(--gold));-webkit-background-clip:text;color:transparent;text-transform:uppercase}
+.back-btn{background:var(--bg3);border:1px solid rgba(200,164,90,.18);color:var(--gold);font-size:19px;cursor:pointer;padding:6px 12px;border-radius:10px;}
+
+/* شبكة الخدمات (مقتبسة من تصميمك الأصلي) */
+.qgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.qbtn{background:linear-gradient(165deg,var(--bg3),var(--bg2));border:1px solid rgba(200,164,90,.14);border-radius:var(--r);padding:16px 14px;cursor:pointer;transition:all .25s var(--ease);box-shadow:var(--shadow-card)}
+.qbtn.full{grid-column:span 2;display:flex;align-items:center;gap:14px;padding:20px 18px;background:linear-gradient(135deg,#1E1608,#191204 60%,#140F06);border-color:rgba(200,164,90,.45);}
+.q-icon{font-size:26px;display:block;margin-bottom:8px;}
+.q-lbl{font-size:13px;font-weight:700;color:var(--txt)}
+.q-sub{font-size:11px;color:var(--txt2);margin-top:3px}
+.vip-badge{background:linear-gradient(135deg,var(--gold-hi),var(--gold));color:#1A1204;font-size:9px;font-weight:800;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:7px;}
+
+/* الحقول (Inputs) */
+.slabel{font-size:11px;font-weight:700;color:var(--gold2);letter-spacing:1px;margin:12px 0 6px;display:block;}
+.inp-wrap{background:var(--bg3);border:1px solid rgba(200,164,90,.16);border-radius:var(--r2);display:flex;align-items:center;padding:14px;margin-bottom:10px;transition:all .25s;}
+.inp-wrap input, .inp-wrap select{flex:1;background:none;border:none;outline:none;font-family:'Tajawal',sans-serif;font-size:14px;color:var(--txt);width:100%;}
+.inp-wrap select option {background:var(--bg);color:var(--txt);}
+.gps-btn{width:100%;background:rgba(200,164,90,.07);border:2px dashed rgba(200,164,90,.4);border-radius:12px;padding:14px;color:var(--gold2);font-family:'Tajawal',sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:10px;transition:all .25s;}
+.gps-btn.done{border-color:var(--green);border-style:solid;color:var(--green);background:rgba(46,204,113,.08);}
+
+/* الأزرار الرئيسية */
+.btn-p{width:100%;background:linear-gradient(135deg,var(--gold-hi),var(--gold2),var(--gold));border:none;border-radius:var(--r);padding:16px;color:#1A1204;font-family:'Tajawal',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px;}
+.bottom{padding:12px 16px;border-top:1px solid rgba(200,164,90,.08);background:linear-gradient(0deg,rgba(10,10,11,.9),transparent)}
+
+/* أقسام الفورم الديناميكية */
+.dynamic-section { display: none; flex-direction: column; }
+.dynamic-section.active { display: flex; }
+
+/* بطاقة التذكرة */
+.card-gold{background:linear-gradient(150deg,#1B1408,#16110A 55%,#120E08);border:1px solid rgba(200,164,90,.32);border-radius:var(--r);padding:16px;}
+.irow{display:flex;align-items:center;justify-content:space-between;background:var(--bg4);border-radius:11px;padding:11px 13px;margin-bottom:8px;font-size:13px;border:1px solid rgba(200,164,90,.06)}
+.irow .lbl{color:var(--txt2);}
+.irow .val{color:var(--gold-hi);font-weight:700;}
+
+/* رفع الصور */
+.file-upload-wrapper { position: relative; overflow: hidden; width: 100%; }
+.file-upload-wrapper input[type=file] { position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; height: 100%; width: 100%; }
+.btn-upload { background: rgba(200,164,90,.07); border: 1px dashed var(--gold); color: var(--gold-hi); padding: 14px; text-align: center; border-radius: var(--r2); font-weight: 700; font-size: 13px; }
+
+/* حركة العلم السعودي (موجودة في تصميمك) */
+@keyframes waveFlag { 0% { transform: translateX(0) translateY(0) scale(1) rotate(0deg); } 50% { transform: translateX(-3%) translateY(2%) scale(1.05) rotate(1deg); } 100% { transform: translateX(0) translateY(0) scale(1) rotate(0deg); } }
+.home-flag-bg{position:absolute;inset:0;z-index:-1;overflow:hidden;background:var(--bg)}
+.home-flag-bg img{position:absolute;top:-10%;left:-10%;width:120%;height:120%;object-fit:cover;opacity:.92;animation:waveFlag 7s ease-in-out infinite}
+.home-flag-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg, rgba(8,8,9,.6) 0%, rgba(8,8,9,.1) 24%, rgba(8,8,9,.06) 52%, rgba(8,8,9,.45) 76%, rgba(8,8,9,.94) 100%);}
 </style>
 </head>
 <body>
- 
+
+<div class="app">
+
 <!-- الشاشة الرئيسية -->
 <div class="screen active" id="screen-home">
-  <div class="header">
-    <div class="header-logo">🚕</div>
-    <div><div class="header-title">VIP TAXI</div><div style="font-size:11px;color:var(--white-dim)">خدمة ذهبية على مدار الساعة</div></div>
+  <div class="home-flag-bg"><img src="https://upload.wikimedia.org/wikipedia/commons/0/0d/Flag_of_Saudi_Arabia.svg" alt=""></div>
+  <div class="topbar">
+    <div class="logo">⚡ Swift Ride</div>
   </div>
-  <div class="service-grid">
-    <div class="service-card featured" onclick="openForm('trip_urgent', 'مشوار فوري')">
-      <span class="service-icon">🚕</span><div><div class="service-name">مشوار فوري</div><div style="font-size:12px;color:var(--white-dim)">توصيل سريع لأي وجهة</div></div>
+  
+  <div style="padding:4px 18px 14px;flex-shrink:0">
+    <div style="font-size:13px;color:var(--txt2 );margin-bottom:4px">أهلاً بك 👋</div>
+    <div style="font-size:27px;font-weight:700;line-height:1.2">إلى <span style="color:var(--gold)">أين</span> تريد الذهاب اليوم؟</div>
+  </div>
+
+  <div class="scroll">
+    <div class="qgrid">
+      <div class="qbtn full" onclick="openForm('trip_urgent', 'مشوار فوري')">
+        <div><div class="vip-badge">فوري</div><div class="q-lbl" style="font-size:16px">مشوار فوري</div><div class="q-sub">كابتن يصلك خلال دقائق</div></div>
+        <span style="font-size:38px;margin-right:auto">🚕</span>
+      </div>
+      <div class="qbtn" onclick="openForm('trip_monthly', 'التزام شهري')"><span class="q-icon">📅</span><div class="q-lbl">شهري</div></div>
+      <div class="qbtn" onclick="openForm('trip_weekly', 'رحلة أسبوعية')"><span class="q-icon">🔁</span><div class="q-lbl">أسبوعي</div></div>
+      <div class="qbtn" onclick="openForm('trip_parcel', 'مندوب توصيل')"><span class="q-icon">📦</span><div class="q-lbl">مندوب طرود</div></div>
+      <div class="qbtn" onclick="openForm('trip_food', 'طلب طعام')"><span class="q-icon">🍔</span><div class="q-lbl">طلب طعام</div></div>
+      <div class="qbtn" onclick="openForm('trip_pharmacy', 'صيدلية')"><span class="q-icon">💊</span><div class="q-lbl">صيدلية</div></div>
+      <div class="qbtn" onclick="openForm('trip_heavy', 'نقل ثقيل')"><span class="q-icon">🚚</span><div class="q-lbl">نقل ثقيل</div></div>
     </div>
-    <div class="service-card" onclick="openForm('trip_monthly', 'التزام شهري')"><span class="service-icon">📅</span><div class="service-name">التزام شهري</div></div>
-    <div class="service-card" onclick="openForm('trip_weekly', 'رحلة أسبوعية')"><span class="service-icon">🔁</span><div class="service-name">رحلة أسبوعية</div></div>
-    <div class="service-card" onclick="openForm('trip_parcel', 'مندوب توصيل')"><span class="service-icon">📦</span><div class="service-name">مندوب طرود</div></div>
-    <div class="service-card" onclick="openForm('trip_food', 'طلب طعام')"><span class="service-icon">🍔</span><div class="service-name">طلب طعام</div></div>
-    <div class="service-card" onclick="openForm('trip_pharmacy', 'صيدلية')"><span class="service-icon">💊</span><div class="service-name">صيدلية</div></div>
-    <div class="service-card" onclick="openForm('trip_heavy', 'نقل ثقيل')"><span class="service-icon">🚚</span><div class="service-name">نقل ثقيل</div></div>
   </div>
 </div>
- 
+
 <!-- شاشة تعبئة الطلب -->
 <div class="screen" id="screen-form">
-  <div class="header">
-    <div class="header-logo">📝</div>
-    <div><div class="header-title" id="form-title">تفاصيل الطلب</div></div>
-    <div class="back-btn" onclick="showScreen('home')">→</div>
+  <div class="topbar">
+    <button class="back-btn" onclick="showScreen('home')">←</button>
+    <div class="logo" id="form-title">تفاصيل الطلب</div>
+    <div style="width:36px"></div>
   </div>
-  <div class="form-body">
-    <!-- الحقول الأساسية -->
-    <div class="field-label">📍 موقع الانطلاق / الاستلام</div>
-    <div class="location-btn" onclick="getGPS()"><span id="gps-text">🎯 اضغط لتحديد موقعك الحالي (إجباري)</span></div>
-    <input class="field-input" id="inp-from" placeholder="اكتب وصف الموقع (حي، شارع، معلم)..." style="margin-top:8px;">
+  
+  <div class="scroll">
+    <span class="slabel">📍 موقع الانطلاق / الاستلام</span>
+    <button class="gps-btn" id="gps-btn" onclick="getGPS()">🎯 استخدم موقعي الحالي (إجباري)</button>
+    <div class="inp-wrap"><input id="inp-from" placeholder="أو اكتب وصف موقعك بدقة..."></div>
     
-    <div class="field-label" style="margin-top:10px;">🏁 الوجهة / التسليم</div>
-    <input class="field-input" id="inp-to" placeholder="اكتب الوجهة بدقة...">
- 
-    <!-- قسم المشوار الفوري -->
+    <span class="slabel">🏁 الوجهة / التسليم</span>
+    <div class="inp-wrap"><input id="inp-to" placeholder="الوجهة... (حي، شارع، معلم)"></div>
+
+    <!-- قسم فوري -->
     <div id="sec-urgent" class="dynamic-section">
-      <div class="field-label">🚗 نوع السيارة</div>
-      <select class="field-input" id="inp-car"><option>سيارة صغيرة</option><option>سيارة عائلية</option><option>لا يهم</option></select>
-      <div class="field-label">👥 عدد الأشخاص</div>
-      <input class="field-input" type="number" id="inp-pax" value="1">
+      <span class="slabel">🚗 نوع السيارة</span>
+      <div class="inp-wrap"><select id="inp-car"><option>سيارة صغيرة</option><option>سيارة عائلية</option><option>لا يهم</option></select></div>
+      <span class="slabel">👥 عدد الأشخاص</span>
+      <div class="inp-wrap"><input type="number" id="inp-pax" value="1"></div>
     </div>
- 
-    <!-- قسم الشهري / الأسبوعي -->
+
+    <!-- قسم شهري/أسبوعي -->
     <div id="sec-monthly" class="dynamic-section">
-      <div class="field-label">⏰ وقت الحضور للمنزل</div><input class="field-input" id="inp-pickup" placeholder="مثال: 6:00 صباحاً">
-      <div class="field-label">⏱️ وقت بداية الدوام</div><input class="field-input" id="inp-wstart" placeholder="مثال: 7:00 صباحاً">
-      <div class="field-label">⏲️ وقت انتهاء الدوام</div><input class="field-input" id="inp-wend" placeholder="مثال: 2:00 ظهراً">
-      <div class="field-label">🏬 نظام الدوام</div><select class="field-input" id="inp-sched"><option>ثابت</option><option>شفتات</option></select>
-      <div class="field-label">📆 عدد أيام الدوام</div><input class="field-input" type="number" id="inp-days" value="5">
-      <div class="field-label">👫 تفضيل السائق</div><select class="field-input" id="inp-gender"><option>لا يهم</option><option>ذكر</option><option>أنثى</option></select>
-      <div class="field-label">🌎 جنسية السائق</div><input class="field-input" id="inp-nat" placeholder="مثال: سعودي، لا يهم">
+      <span class="slabel">⏰ أوقات الدوام</span>
+      <div class="inp-wrap"><input id="inp-pickup" placeholder="وقت الحضور للمنزل (مثال 6 ص)"></div>
+      <div class="inp-wrap"><input id="inp-wstart" placeholder="بداية الدوام (مثال 7 ص)"></div>
+      <div class="inp-wrap"><input id="inp-wend" placeholder="نهاية الدوام (مثال 2 ظ)"></div>
+      <span class="slabel">🏬 نظام الدوام</span>
+      <div class="inp-wrap"><select id="inp-sched"><option>ثابت</option><option>شفتات</option></select></div>
+      <span class="slabel">📆 عدد أيام الدوام</span>
+      <div class="inp-wrap"><input type="number" id="inp-days" value="5"></div>
+      <span class="slabel">👤 تفضيل السائق</span>
+      <div class="inp-wrap"><select id="inp-gender"><option>لا يهم</option><option>ذكر</option><option>أنثى</option></select></div>
+      <span class="slabel">🌎 جنسية السائق</span>
+      <div class="inp-wrap"><input id="inp-nat" placeholder="مثال: سعودي، لا يهم"></div>
     </div>
- 
-    <!-- قسم الطرود / الطعام / الصيدلية -->
+
+    <!-- قسم طرود/طعام/صيدلية -->
     <div id="sec-parcel" class="dynamic-section">
-      <div class="field-label">📦 محتوى الطلب</div><input class="field-input" id="inp-content" placeholder="وش حاب نوصل لك؟">
-      <div class="field-label">💶 هل الطلب مدفوع مسبقاً؟</div><select class="field-input" id="inp-paid"><option>نعم</option><option>لا</option></select>
-      <div class="field-label">💵 السيولة المطلوبة (كاش يدفعه المندوب)</div><input class="field-input" type="number" id="inp-cash" value="0">
-      
-      <!-- رفع الصورة -->
-      <div class="field-label">📸 إرفاق صورة للطلب / الوصفة (اختياري)</div>
+      <span class="slabel">📦 محتوى الطلب</span>
+      <div class="inp-wrap"><input id="inp-content" placeholder="وش حاب نوصل لك؟"></div>
+      <span class="slabel">💶 هل الطلب مدفوع؟</span>
+      <div class="inp-wrap"><select id="inp-paid"><option>نعم</option><option>لا</option></select></div>
+      <span class="slabel">💵 كاش يدفعه المندوب (السيولة)</span>
+      <div class="inp-wrap"><input type="number" id="inp-cash" value="0"></div>
+      <span class="slabel">📸 إرفاق صورة (اختياري)</span>
       <div class="file-upload-wrapper">
-        <div class="btn-upload" id="upload-btn-text-parcel">اضغط هنا لاختيار صورة 🖼️</div>
+        <div class="btn-upload" id="upload-btn-text-parcel">اضغط لاختيار صورة 🖼️</div>
         <input type="file" accept="image/*" onchange="uploadImage(this, 'upload-btn-text-parcel')">
       </div>
     </div>
- 
+
     <!-- قسم النقل الثقيل -->
     <div id="sec-heavy" class="dynamic-section">
-      <div class="field-label">🚚 نوع المركبة</div><select class="field-input" id="inp-heavy-type"><option>دينة</option><option>دباب</option></select>
-      <div class="field-label">📦 الأغراض المنقولة</div><input class="field-input" id="inp-heavy-items" placeholder="مثال: غرفة نوم، ثلاجة...">
-      <div class="field-label">👷 هل تحتاج عمال تحميل؟</div><select class="field-input" id="inp-workers"><option value="true">نعم</option><option value="false">لا</option></select>
-      
-      <!-- رفع الصورة -->
-      <div class="field-label">📸 إرفاق صورة للعفش (اختياري)</div>
+      <span class="slabel">🚚 نوع المركبة</span>
+      <div class="inp-wrap"><select id="inp-heavy-type"><option>دينة</option><option>دباب</option></select></div>
+      <span class="slabel">📦 الأغراض المنقولة</span>
+      <div class="inp-wrap"><input id="inp-heavy-items" placeholder="مثال: غرفة نوم، كراتين..."></div>
+      <span class="slabel">👷 عمال تحميل؟</span>
+      <div class="inp-wrap"><select id="inp-workers"><option value="true">نعم</option><option value="false">لا</option></select></div>
+      <span class="slabel">📸 إرفاق صورة للعفش (اختياري)</span>
       <div class="file-upload-wrapper">
-        <div class="btn-upload" id="upload-btn-text-heavy">اضغط هنا لاختيار صورة 🖼️</div>
+        <div class="btn-upload" id="upload-btn-text-heavy">اضغط لاختيار صورة 🖼️</div>
         <input type="file" accept="image/*" onchange="uploadImage(this, 'upload-btn-text-heavy')">
       </div>
     </div>
- 
-    <div class="field-label" style="margin-top:10px;">📝 ملاحظات إضافية</div>
-    <input class="field-input" id="inp-notes" placeholder="أي تفاصيل تهم الكابتن...">
- 
-    <button class="btn-primary" onclick="reviewOrder()">مراجعة الطلب 📋</button>
+
+    <span class="slabel">📝 ملاحظات إضافية</span>
+    <div class="inp-wrap"><input id="inp-notes" placeholder="أي تفاصيل تهم الكابتن..."></div>
   </div>
+  <div class="bottom"><button class="btn-p" onclick="reviewOrder()">مراجعة الطلب 📋</button></div>
 </div>
- 
+
 <!-- شاشة التذكرة (المراجعة) -->
 <div class="screen" id="screen-review">
-  <div class="header">
-    <div class="header-logo">📋</div>
-    <div><div class="header-title">مراجعة التذكرة</div></div>
-    <div class="back-btn" onclick="showScreen('form')">→</div>
+  <div class="topbar">
+    <button class="back-btn" onclick="showScreen('form')">←</button>
+    <div class="logo">مراجعة التذكرة</div>
+    <div style="width:36px"></div>
   </div>
-  <div class="ticket-card" id="ticket-content">
-    <!-- سيتم تعبئتها برمجياً -->
+  <div class="scroll">
+    <div class="card-gold" id="ticket-content">
+      <!-- يعبأ برمجياً -->
+    </div>
   </div>
-  <div style="padding: 0 20px;">
-    <button class="btn-primary" onclick="submitOrder()">تأكيد وإرسال الطلب ✅</button>
-  </div>
+  <div class="bottom"><button class="btn-p" onclick="submitOrder()">✦ تأكيد وإرسال الطلب ✦</button></div>
 </div>
- 
-<!-- شاشة النجاح والتحذير -->
+
+<!-- شاشة النجاح -->
 <div class="screen" id="screen-success">
   <div style="padding:40px 20px; text-align:center; display:flex; flex-direction:column; height:100%; justify-content:center;">
     <div style="font-size:70px; margin-bottom:20px;">🚕</div>
-    <h2 style="color:var(--gold); margin-bottom:15px;">تم تجهيز طلبك بنجاح!</h2>
-    <p style="color:var(--white); font-size:15px; line-height:1.6; margin-bottom:20px;">
-      عزيزي العميل، يرجى <strong>الانتظار في البوت</strong> لاستقبال عروض وأسعار السائقين.
-    </p>
-    <div style="background:rgba(220,53,69,0.15); border:1px solid rgba(220,53,69,0.4); padding:15px; border-radius:12px; margin-bottom:30px;">
-      <p style="color:#ff6b6b; font-size:13px; font-weight:bold; line-height:1.5;">
-        ⚠️ تنبيه هام: إذا خرجت من البوت أو أهملت الرسائل، فلن تتمكن من رؤية أسعار السائقين وقد يتم إلغاء طلبك.
-      </p>
+    <h2 style="color:var(--gold); margin-bottom:15px;">تم إرسال طلبك بنجاح!</h2>
+    <p style="color:var(--txt); font-size:15px; margin-bottom:20px;">الرجاء <strong>الانتظار في البوت</strong> لاستقبال عروض السائقين.</p>
+    <div style="background:rgba(231,76,60,.1); border:1px solid rgba(231,76,60,.3); padding:15px; border-radius:12px; margin-bottom:30px;">
+      <p style="color:var(--red); font-size:13px; font-weight:bold;">⚠️ تنبيه هام: إذا خرجت من البوت فلن ترى أسعار السائقين.</p>
     </div>
-    <button class="btn-primary" onclick="sendToBot()">العودة للبوت لانتظار العروض 🔙</button>
+    <button class="btn-p" onclick="sendToBot()">العودة للبوت 🔙</button>
   </div>
 </div>
- 
+
+</div>
+
 <script>
   const tg = window.Telegram?.WebApp;
-  if(tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#0A0A0A'); tg.setBackgroundColor('#0A0A0A'); }
+  if(tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#0A0A0B'); tg.setBackgroundColor('#0A0A0B'); }
   
   let currentTripType = '';
   let gpsLocation = '';
   let finalPayload = {};
-  let uploadedImageUrl = null; // متغير لحفظ رابط الصورة
- 
-  // 🔑 مفتاح API مجاني لرفع الصور (ImgBB)
-  // يفضل مستقبلاً تسجل في api.imgbb.com وتحط مفتاحك الخاص لضمان الاستقرار
-  const IMGBB_API_KEY = '11c01832d3122fdd375eda927babe5dc'; // مفتاح عام للتجربة
- 
+  let uploadedImageUrl = null;
+  const IMGBB_API_KEY = '11c01832d3122fdd375eda927babe5dc';
+
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-' + id).classList.add('active');
   }
- 
+
   function openForm(type, title) {
     currentTripType = type;
-    uploadedImageUrl = null; // تصفير الصورة عند فتح طلب جديد
+    uploadedImageUrl = null;
     document.getElementById('form-title').textContent = title;
     document.querySelectorAll('.dynamic-section').forEach(s => s.classList.remove('active'));
     
@@ -211,57 +247,41 @@
     
     showScreen('form');
   }
- 
+
   function getGPS() {
     if(!navigator.geolocation) return alert('GPS غير مدعوم');
-    document.getElementById('gps-text').textContent = '⏳ جاري التحديد...';
+    const btn = document.getElementById('gps-btn');
+    btn.textContent = '⏳ جاري التحديد...';
     navigator.geolocation.getCurrentPosition(pos => {
       gpsLocation = `${pos.coords.latitude},${pos.coords.longitude}`;
-      document.getElementById('gps-text').textContent = '✅ تم تحديد الموقع بنجاح';
+      btn.textContent = '✅ تم تحديد موقعك (اكتب الوصف الآن)';
+      btn.classList.add('done');
     }, () => {
-      document.getElementById('gps-text').textContent = '❌ فشل التحديد، تأكد من تفعيل الـ GPS';
+      btn.textContent = '❌ فشل التحديد، فعل الموقع بجهازك';
     });
   }
- 
-  // دالة رفع الصورة
+
   function uploadImage(input, textElementId) {
     const file = input.files[0];
     if(!file) return;
-    
     const textEl = document.getElementById(textElementId);
-    textEl.textContent = '⏳ جاري رفع الصورة... الرجاء الانتظار';
-    textEl.style.color = '#fff';
-    
+    textEl.textContent = '⏳ جاري رفع الصورة...';
     const formData = new FormData();
     formData.append('image', file);
-    
-    fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-      method: 'POST',
-      body: formData
-    } )
+    fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData } )
     .then(res => res.json())
     .then(data => {
-      if(data.success) {
-        uploadedImageUrl = data.data.url;
-        textEl.textContent = '✅ تم إرفاق الصورة بنجاح!';
-        textEl.style.color = '#46cc71';
-      } else {
-        textEl.textContent = '❌ فشل الرفع، حاول مرة أخرى';
-        textEl.style.color = '#ff6b6b';
-      }
-    })
-    .catch(err => {
-      textEl.textContent = '❌ خطأ في الاتصال بالإنترنت';
-      textEl.style.color = '#ff6b6b';
-    });
+      if(data.success) { uploadedImageUrl = data.data.url; textEl.textContent = '✅ تم إرفاق الصورة!'; textEl.style.color = 'var(--green)'; }
+      else { textEl.textContent = '❌ فشل الرفع'; }
+    }).catch(err => { textEl.textContent = '❌ خطأ بالاتصال'; });
   }
- 
+
   function reviewOrder() {
-    if(!gpsLocation) return alert('⚠️ يرجى تحديد موقعك الحالي (GPS) أولاً');
+    if(!gpsLocation) return alert('⚠️ إجباري: اضغط على زر تحديد الموقع (GPS) أولاً');
     const from = document.getElementById('inp-from').value || 'موقعي الحالي';
     const to = document.getElementById('inp-to').value;
     if(!to) return alert('⚠️ يرجى كتابة الوجهة');
- 
+
     finalPayload = {
       user_id: tg?.initDataUnsafe?.user?.id || 0,
       trip_type: currentTripType,
@@ -271,20 +291,16 @@
       order_details: document.getElementById('inp-notes').value || 'لا يوجد',
       initial_price: 0
     };
-    
-     // إضافة رابط الصورة إذا تم رفعها
-    if(uploadedImageUrl) {
-      finalPayload.items_photo = uploadedImageUrl;
-    }
+    if(uploadedImageUrl) finalPayload.items_photo = uploadedImageUrl;
 
-    let html = `<div class="ticket-row"><span class="ticket-label">📍 من:</span><span class="ticket-val">${from}</span></div>
-                <div class="ticket-row"><span class="ticket-label">🏁 إلى:</span><span class="ticket-val">${to}</span></div>`;
- 
+    let html = `<div class="irow"><span class="lbl">📍 من</span><span class="val">${from}</span></div>
+                <div class="irow"><span class="lbl">🏁 إلى</span><span class="val">${to}</span></div>`;
+
     if(currentTripType === 'trip_urgent') {
       finalPayload.vehicle_type = document.getElementById('inp-car').value;
       finalPayload.passengers_count = document.getElementById('inp-pax').value;
-      html += `<div class="ticket-row"><span class="ticket-label">🚗 السيارة:</span><span class="ticket-val">${finalPayload.vehicle_type}</span></div>
-               <div class="ticket-row"><span class="ticket-label">👥 الأشخاص:</span><span class="ticket-val">${finalPayload.passengers_count}</span></div>`;
+      html += `<div class="irow"><span class="lbl">🚗 السيارة</span><span class="val">${finalPayload.vehicle_type}</span></div>
+               <div class="irow"><span class="lbl">👥 الأشخاص</span><span class="val">${finalPayload.passengers_count}</span></div>`;
     } 
     else if(currentTripType === 'trip_monthly' || currentTripType === 'trip_weekly') {
       finalPayload.pickup_time = document.getElementById('inp-pickup').value;
@@ -295,35 +311,34 @@
       finalPayload.gender_preference = document.getElementById('inp-gender').value;
       finalPayload.driver_nationality = document.getElementById('inp-nat').value || 'لا يهم';
       
-      html += `<div class="ticket-row"><span class="ticket-label">⏰ الحضور:</span><span class="ticket-val">${finalPayload.pickup_time}</span></div>
-               <div class="ticket-row"><span class="ticket-label">⏱️ الدوام:</span><span class="ticket-val">${finalPayload.work_start} - ${finalPayload.return_time}</span></div>
-               <div class="ticket-row"><span class="ticket-label">📆 الأيام:</span><span class="ticket-val">${finalPayload.days_count} (${finalPayload.schedule_type})</span></div>`;
+      html += `<div class="irow"><span class="lbl">⏰ الحضور</span><span class="val">${finalPayload.pickup_time}</span></div>
+               <div class="irow"><span class="lbl">⏱️ الدوام</span><span class="val">${finalPayload.work_start} - ${finalPayload.return_time}</span></div>
+               <div class="irow"><span class="lbl">📆 الأيام</span><span class="val">${finalPayload.days_count} (${finalPayload.schedule_type})</span></div>`;
     }
     else if(currentTripType === 'trip_parcel' || currentTripType === 'trip_food' || currentTripType === 'trip_pharmacy') {
       finalPayload.parcel_content = document.getElementById('inp-content').value;
       finalPayload.parcel_is_paid = document.getElementById('inp-paid').value;
       finalPayload.parcel_cash_needed = document.getElementById('inp-cash').value;
       
-      html += `<div class="ticket-row"><span class="ticket-label">📦 المحتوى:</span><span class="ticket-val">${finalPayload.parcel_content}</span></div>
-               <div class="ticket-row"><span class="ticket-label">💶 مدفوع مسبقاً:</span><span class="ticket-val">${finalPayload.parcel_is_paid}</span></div>
-               <div class="ticket-row"><span class="ticket-label">💵 كاش مطلوب:</span><span class="ticket-val">${finalPayload.parcel_cash_needed} ريال</span></div>`;
-    }
+      html += `<div class="irow"><span class="lbl">📦 المحتوى</span><span class="val">${finalPayload.parcel_content}</span></div>
+               <div class="irow"><span class="lbl">💶 مدفوع</span><span class="val">${finalPayload.parcel_is_paid}</span></div>
+               <div class="irow"><span class="lbl">💵 كاش مطلوب</span><span class="val">${finalPayload.parcel_cash_needed} ريال</span></div>`;
+      }
     else if(currentTripType === 'trip_heavy') {
       finalPayload.vehicle_type = document.getElementById('inp-heavy-type').value;
       finalPayload.order_details = document.getElementById('inp-heavy-items').value;
       finalPayload.needs_workers = document.getElementById('inp-workers').value === 'true';
       
-      html += `<div class="ticket-row"><span class="ticket-label">🚚 المركبة:</span><span class="ticket-val">${finalPayload.vehicle_type}</span></div>
-               <div class="ticket-row"><span class="ticket-label">📦 الأغراض:</span><span class="ticket-val">${finalPayload.order_details}</span></div>
-               <div class="ticket-row"><span class="ticket-label">👷 عمال:</span><span class="ticket-val">${finalPayload.needs_workers ? 'نعم' : 'لا'}</span></div>`;
+      html += `<div class="irow"><span class="lbl">🚚 المركبة</span><span class="val">${finalPayload.vehicle_type}</span></div>
+               <div class="irow"><span class="lbl">📦 الأغراض</span><span class="val">${finalPayload.order_details}</span></div>
+               <div class="irow"><span class="lbl">👷 عمال</span><span class="val">${finalPayload.needs_workers ? 'نعم' : 'لا'}</span></div>`;
     }
  
-    // إظهار حالة الصورة في التذكرة إذا تم رفعها
     if(uploadedImageUrl) {
-      html += `<div class="ticket-row"><span class="ticket-label">📸 الصورة:</span><span class="ticket-val" style="color:#46cc71;">مرفقة ✅</span></div>`;
+      html += `<div class="irow"><span class="lbl">📸 الصورة</span><span class="val" style="color:var(--green)">مرفقة ✅</span></div>`;
     }
 
-    html += `<div class="ticket-row" style="border:none;"><span class="ticket-label">💰 السعر:</span><span class="ticket-val">يحدد من قبل الكابتن</span></div>`;
+    html += `<div class="irow" style="border:none; margin-top:10px;"><span class="lbl">💰 السعر</span><span class="val">يحدد من قبل الكابتن</span></div>`;
     document.getElementById('ticket-content').innerHTML = html;
     showScreen('review');
   }
