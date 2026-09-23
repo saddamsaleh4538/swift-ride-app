@@ -529,6 +529,7 @@ body{
         <div class="card">
           <div style="font-size:13px;color:var(--txt2);margin-bottom:8px">نوع الرحلة <b style="color:var(--red)">*</b></div>
           <div class="option-row"><button type="button" class="option-btn" id="dir-one" onclick="selectTripDirection(this,'ذهاب فقط')">➡️ ذهاب فقط</button><button type="button" class="option-btn" id="dir-return" onclick="selectTripDirection(this,'ذهاب وعودة')">🔁 ذهاب وعودة</button></div>
+          <input type="hidden" id="inp-dir" />
           <div id="urgent-time-fields" class="conditional">
             <div class="inp-wrap"><span class="inp-icon">🕐</span><input id="inp-time" readonly placeholder="اختر وقت الذهاب من الأزرار" /></div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px"><button type="button" class="time-chip" onclick="setVal('inp-time','6:00 صباحاً')">6:00 ص</button><button type="button" class="time-chip" onclick="setVal('inp-time','7:00 صباحاً')">7:00 ص</button><button type="button" class="time-chip" onclick="setVal('inp-time','8:00 صباحاً')">8:00 ص</button><button type="button" class="time-chip" onclick="setVal('inp-time','5:00 مساءً')">5:00 م</button></div>
@@ -537,6 +538,7 @@ body{
           <div class="inp-wrap"><span class="inp-icon">👥</span><input id="inp-pax" type="number" min="1" max="10" placeholder="عدد الأشخاص" /></div>
           <div style="font-size:13px;color:var(--txt2);margin:4px 0 8px">هل لديك أغراض؟ <b style="color:var(--red)">*</b></div>
           <div class="option-row"><button type="button" class="option-btn" onclick="selectLuggage(this,'نعم')">✅ نعم</button><button type="button" class="option-btn" onclick="selectLuggage(this,'لا')">❌ لا</button></div>
+          <input type="hidden" id="inp-luggage" />
           <div id="luggage-details" class="conditional"><div class="inp-wrap"><span class="inp-icon">🧳</span><input id="inp-luggage-details" placeholder="اكتب ماذا لديك" /></div></div>
           <div style="font-size:13px;color:var(--txt2);margin:4px 0 8px">تفضيل السائق <b style="color:var(--red)">*</b></div>
           <div class="option-row three"><button type="button" class="option-btn" onclick="selectOption(this,'inp-gender','ذكر')">ذكر</button><button type="button" class="option-btn" onclick="selectOption(this,'inp-gender','أنثى')">أنثى</button><button type="button" class="option-btn" onclick="selectOption(this,'inp-gender','لا يهم')">لا يهم</button></div>
@@ -1759,8 +1761,15 @@ function confirmLocationPicker(){
   if (!pendingLocation){ unifiedAlert('⚠️ اضغط على الخريطة أو ابحث عن الموقع أولاً'); return; }
   const savedMode = locationMode;
   const value={lat:pendingLocation.lat,lng:pendingLocation.lng};
-  if (savedMode==='pickup') pickupGPS=value; else deliveryGPS=value;
-  const btn=document.getElementById(locationMode==='pickup'?'pickup-location-btn':'delivery-location-btn');
+  if (savedMode==='pickup') {
+    pickupGPS=value;
+    // توافق مع البوت القديم الذي يقرأ ST.lat و ST.lng لموقع الاستلام
+    ST.lat=value.lat;
+    ST.lng=value.lng;
+  } else {
+    deliveryGPS=value;
+  }
+  const btn=document.getElementById(savedMode==='pickup'?'pickup-location-btn':'delivery-location-btn');
   const text=document.getElementById(locationMode==='pickup'?'pickup-coords':'delivery-coords');
   if (btn) btn.classList.add('done');
   if (text) text.textContent=value.lat.toFixed(5)+', '+value.lng.toFixed(5);
@@ -1786,12 +1795,14 @@ let unifiedHeavyType='دينة';function selectHeavyType(el,type){document.query
 async function uploadImage(input,textElementId){const file=input.files?.[0];if(!file)return;const state=document.getElementById(textElementId);state.textContent='⏳ جاري رفع الصورة...';try{const form=new FormData();form.append('image',file);const res=await fetch('https://api.imgbb.com/1/upload?key='+IMGBB_API_KEY,{method:'POST',body:form});const data=await res.json();if(!data.success)throw new Error('upload failed');uploadedImageUrl=data.data.url;state.textContent='✅ تم رفع الصورة بنجاح'}catch(e){uploadedImageUrl='';state.textContent='⚠️ تعذر رفع الصورة';unifiedAlert('⚠️ تعذر رفع الصورة حالياً')}}
 function val(id,fallback=''){return document.getElementById(id)?.value.trim()||fallback}function row(icon,label,value){return '<div class="irow"><span>'+icon+'</span><span class="lbl">'+label+'</span><span class="val">'+(value||'غير محدد')+'</span></div>'}
 function reviewOrder(){
+  // البوت القديم يستخدم trip_weekly للرحلة اليومية
+  const payloadTripType = unifiedType==='trip_daily' ? 'trip_weekly' : unifiedType;
   const parcelType = ['trip_parcel','trip_food','trip_pharmacy'].includes(unifiedType);
   if(!parcelType && (!ST.lat || !ST.lng)){ unifiedAlert('⚠️ حدد موقعك الحالي GPS أولاً'); return; }
   const from=val('inp-from'), to=val('inp-to');
   if(!from || !to){ unifiedAlert('⚠️ اكتب موقع الاستلام والوجهة'); return; }
   const common={
-    user_id:ST.userId, trip_type:unifiedType,
+    user_id:ST.userId, trip_type:payloadTripType,
     from_location_text:from, to_location_name:to,
     from_location_gps:ST.lat+','+ST.lng,
     to_location_gps:null,
@@ -1821,20 +1832,20 @@ function reviewOrder(){
     }
     Object.assign(common,{
       schedule_type:val('inp-schedule-type'), pickup_time:val('inp-pickup'),
-      work_start:val('inp-wstart'), return_time:val('inp-wend'),
+      trip_time:val('inp-pickup'), work_start:val('inp-wstart'), return_time:val('inp-wend'),
       shift_type:val('inp-sched'), days_count:parseInt(val('inp-days','5'),10),
       passengers_count:parseInt(val('inp-monthly-pax','1'),10),
       gender_preference:val('inp-monthly-gender'), driver_nationality:val('inp-nat')
     });
   }
   if(['trip_parcel','trip_food','trip_pharmacy'].includes(unifiedType)){
-    if(['trip_parcel','trip_food','trip_pharmacy'].includes(unifiedType)) {
-      if(!pickupGPS || !deliveryGPS){ unifiedAlert('⚠️ حدد موقع الاستلام وموقع التسليم على الخريطة أولاً'); return; }
-      common.from_location_gps=pickupGPS.lat+','+pickupGPS.lng;
-      common.to_location_gps=deliveryGPS.lat+','+deliveryGPS.lng;
-      common.pickup_location_gps=common.from_location_gps;
-      common.delivery_location_gps=common.to_location_gps;
-    }
+    if(!pickupGPS || !deliveryGPS){ unifiedAlert('⚠️ حدد موقع الاستلام وموقع التسليم على الخريطة أولاً'); return; }
+    ST.lat=pickupGPS.lat;
+    ST.lng=pickupGPS.lng;
+    common.from_location_gps=pickupGPS.lat+','+pickupGPS.lng;
+    common.to_location_gps=deliveryGPS.lat+','+deliveryGPS.lng;
+    common.pickup_location_gps=common.from_location_gps;
+    common.delivery_location_gps=common.to_location_gps;
     if(!val('inp-content') || !val('inp-order-number') || !val('inp-paid') || !val('inp-cash') || !val('inp-parcel-gender') || !val('inp-parcel-nationality') || !val('inp-passenger-gender')){
       unifiedAlert('⚠️ أكمل محتوى الطلب ورقمه والدفع والسيولة والتفضيلات'); return;
     }
@@ -1878,4 +1889,6 @@ tg?.BackButton?.onClick?.(()=>{
 });
 </script>
 </body>
+</html>
+
 </html>
