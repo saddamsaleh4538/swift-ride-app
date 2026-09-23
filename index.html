@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -250,9 +251,10 @@ body{
   position: fixed; inset: 0; background: linear-gradient(135deg, #004d26, #006c35);
   z-index: 99999; display: flex; flex-direction: column; align-items: center;
   justify-content: center; transition: opacity 0.6s ease, visibility 0.6s ease;
-  text-align: center; padding: 20px;
+  text-align: center; padding: 20px; animation: autoHideSplash 5s forwards;
 }
-.splash-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+.splash-screen.hidden { display: none !important; opacity: 0; visibility: hidden; pointer-events: none; }
+@keyframes autoHideSplash { 0%,88%{opacity:1;visibility:visible;pointer-events:all} 100%{opacity:0;visibility:hidden;pointer-events:none} }
 .splash-img-container { width: 220px; height: 220px; margin-bottom: 30px; animation: floatSplash 3s ease-in-out infinite; }
 .splash-img { width: 100%; height: 100%; object-fit: contain; }
 .splash-title { font-size: 32px; font-weight: 700; color: #FFFFFF; margin-bottom: 10px; }
@@ -264,7 +266,36 @@ body{
 }
 @keyframes floatSplash { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 /* 🔴 === نهاية كود اليوم الوطني === 🔴 */
+/* إضافات شاشة الطلب الموحدة والمراجعة */
+.unified-panel{display:none;min-height:0;overflow:hidden}
+.unified-panel.visible{display:flex;flex-direction:column;height:100%;min-height:0;overflow:hidden}
+.unified-panel>.scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;touch-action:pan-y;-webkit-overflow-scrolling:touch}
+.form-section{display:none}
+.form-section.active{display:block;animation:riseIn .45s var(--ease) both}
+.form-help{font-size:11px;color:var(--txt2);line-height:1.7;margin:-3px 0 10px}
+.file-wrap{background:var(--bg3);border:1px dashed rgba(200,164,90,.35);border-radius:12px;padding:13px;margin-bottom:10px}
+.file-wrap input{width:100%;color:var(--txt2);font-family:'Tajawal',sans-serif;font-size:12px}
+.upload-state{font-size:11px;color:var(--txt2);margin-top:7px;min-height:16px}
+.review-ticket{background:linear-gradient(150deg,#1B1408,#16110A 55%,#120E08);border:1px solid rgba(200,164,90,.32);border-radius:16px;padding:16px;box-shadow:var(--shadow-card)}
+.review-ticket .irow{background:rgba(255,255,255,.025)}
+.option-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}.option-row.three{grid-template-columns:repeat(3,1fr)}.option-btn{background:var(--bg3);border:1px solid rgba(200,164,90,.16);border-radius:12px;padding:13px 8px;text-align:center;color:var(--txt);font-family:'Tajawal',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s var(--ease)}.option-btn.sel{border-color:var(--gold);background:rgba(200,164,90,.14);color:var(--gold2);box-shadow:var(--shadow-gold)}.conditional{display:none}.conditional.active{display:block;animation:riseIn .35s var(--ease) both}.badge-type{display:inline-flex;padding:5px 11px;border-radius:18px;background:rgba(200,164,90,.12);border:1px solid rgba(200,164,90,.3);color:var(--gold2);font-size:11px;font-weight:700;margin-bottom:12px}
+
   
+
+/* اختيار موقع الاستلام والتسليم على الخريطة */
+.location-pick-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.location-pick-btn{background:rgba(200,164,90,.07);border:1px dashed rgba(200,164,90,.4);border-radius:12px;padding:12px 8px;color:var(--gold2);font-family:'Tajawal',sans-serif;font-size:11px;font-weight:700;cursor:pointer;min-height:58px}
+.location-pick-btn.done{border-style:solid;border-color:var(--green);color:var(--green);background:rgba(46,204,113,.08)}
+.location-coords{font-size:10px;color:var(--txt3);margin-top:6px;text-align:center;min-height:14px}
+.location-modal{display:none;position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.78);align-items:flex-end;justify-content:center}
+.location-modal.open{display:flex}
+.location-sheet{width:100%;max-width:430px;height:86%;background:var(--bg2);border-radius:20px 20px 0 0;padding:12px;display:flex;flex-direction:column;gap:8px}
+.location-sheet-head{display:flex;align-items:center;justify-content:space-between;color:var(--txt);font-weight:800;font-size:14px}
+.location-close{background:var(--bg3);border:1px solid rgba(200,164,90,.25);color:var(--gold2);border-radius:9px;padding:7px 12px;font-family:'Tajawal',sans-serif;cursor:pointer}
+.location-search{display:flex;gap:7px}.location-search input{flex:1;background:var(--bg3);border:1px solid rgba(200,164,90,.2);border-radius:10px;padding:11px;color:var(--txt);font-family:'Tajawal',sans-serif;outline:none}.location-search button{background:var(--gold);border:0;border-radius:10px;padding:0 14px;color:#1A1204;font-family:'Tajawal',sans-serif;font-weight:800}
+#location-map{flex:1;min-height:260px;border-radius:14px;overflow:hidden}
+.location-confirm{background:linear-gradient(135deg,var(--gold-hi),var(--gold));border:0;border-radius:12px;padding:14px;color:#1A1204;font-family:'Tajawal',sans-serif;font-weight:800;cursor:pointer}
+
 </style>
 </head>
 <body>
@@ -362,6 +393,27 @@ body{
         <div class="q-lbl">شهري</div>
         <div class="q-sub">سائق خاص بالشهر</div>
       </div>
+  
+      <div class="qbtn" onclick="goToRequest('trip_parcel')">
+        <span class="q-icon">📦</span>
+        <div class="q-lbl">مندوب توصيل</div>
+        <div class="q-sub">أرسل طردك بأمان</div>
+      </div>
+      <div class="qbtn" onclick="goToRequest('trip_heavy')">
+        <span class="q-icon">🚚</span>
+        <div class="q-lbl">نقل ثقيل</div>
+        <div class="q-sub">نقل الأغراض والمعدات</div>
+      </div>
+      <div class="qbtn" onclick="goToRequest('trip_food')">
+        <span class="q-icon">🍔</span>
+        <div class="q-lbl">طلب طعام</div>
+        <div class="q-sub">استلم طلبك بسرعة</div>
+      </div>
+      <div class="qbtn" onclick="goToRequest('trip_pharmacy')">
+        <span class="q-icon">💊</span>
+        <div class="q-lbl">صيدلية</div>
+        <div class="q-sub">توصيل احتياجاتك</div>
+      </div>
     </div>
   </div>
 </div>
@@ -439,6 +491,101 @@ body{
     <div style="height:8px"></div>
   </div>
   <div class="bottom"><button class="btn-p" onclick="submitUrgent()">✦ تأكيد وإرسال الطلب ✦</button></div>
+
+  <!-- شاشة الطلب الموحدة: نموذج كامل مرتب بدون خطوات -->
+  <div class="unified-panel" id="unified-panel">
+    <div class="topbar" style="padding-top:0"><button class="back-btn" onclick="goTo('home')">←</button><div class="logo" id="unified-title">طلب جديد</div><div style="width:36px"></div></div>
+    <div class="scroll" id="unified-scroll">
+      <div class="prog-wrap"><div class="prog-fill" style="width:100%"></div></div>
+
+      <div class="form-section" id="sec-parcel-before">
+        <span class="slabel">📦 تفاصيل الطلب</span>
+        <div class="card">
+          <div class="inp-wrap"><span class="inp-icon">📝</span><input id="inp-content" placeholder="محتوى الطلب أو وصف الأدوية" /></div>
+          <div class="inp-wrap" style="margin-bottom:0"><span class="inp-icon">🔢</span><input id="inp-order-number" placeholder="رقم الطلب (أو لا يوجد)" /></div>
+        </div>
+      </div>
+
+      <div class="form-section" id="sec-heavy-before">
+        <span class="slabel">🚚 نوع مركبة النقل الثقيل <b style="color:var(--red)">*</b></span>
+        <div class="card"><div class="option-row" id="inp-heavy-type"><button type="button" class="option-btn sel" onclick="selectHeavyType(this,'دينة')">🛻 دينة</button><button type="button" class="option-btn" onclick="selectHeavyType(this,'دباب')">🏍️ دباب</button></div></div>
+      </div>
+
+      <span class="slabel">🗺️ بيانات الاستلام والتوصيل <b style="color:var(--red)">*</b></span>
+      <div class="card" style="padding:14px">
+        <div class="inp-wrap"><span class="inp-icon">📍</span><input id="inp-from" placeholder="أين؟ اكتب اسم الحي أو المعلم" /></div>
+        <div class="inp-wrap"><span class="inp-icon">🏁</span><input id="inp-to" placeholder="إلى أين؟ اكتب اسم الحي أو المعلم" /></div>
+        <button class="gps-btn" id="unified-gps-btn" onclick="getGPS()">📍 استخدم موقعي الحالي (GPS)</button>
+        <div class="form-help" id="unified-gps-help">تحديد موقعك الحالي GPS لموقع الاستلام.</div>
+        <div class="location-pick-row parcel-only-location" style="display:none">
+          <button type="button" class="location-pick-btn" id="pickup-location-btn" onclick="openLocationPicker('pickup')">📍 تحديد موقع الاستلام<br><span class="location-coords" id="pickup-coords">مطلوب</span></button>
+          <button type="button" class="location-pick-btn" id="delivery-location-btn" onclick="openLocationPicker('delivery')">🏁 تحديد موقع التسليم<br><span class="location-coords" id="delivery-coords">مطلوب</span></button>
+        </div>
+        <div class="form-help parcel-only-location" id="parcel-location-help" style="display:none">يمكنك تحديد موقعًا بعيدًا عنك على الخريطة، مثل متجر في الرياض والعميل في جدة. سيتم البحث عن السائقين قرب موقع الاستلام.</div>
+      </div>
+
+      <div class="form-section" id="sec-urgent">
+        <span class="slabel">🚕 تفاصيل المشوار الفوري</span>
+        <div class="card">
+          <div style="font-size:13px;color:var(--txt2);margin-bottom:8px">نوع الرحلة <b style="color:var(--red)">*</b></div>
+          <div class="option-row"><button type="button" class="option-btn" id="dir-one" onclick="selectTripDirection(this,'ذهاب فقط')">➡️ ذهاب فقط</button><button type="button" class="option-btn" id="dir-return" onclick="selectTripDirection(this,'ذهاب وعودة')">🔁 ذهاب وعودة</button></div>
+          <div id="urgent-time-fields" class="conditional">
+            <div class="inp-wrap"><span class="inp-icon">🕐</span><input id="inp-time" readonly placeholder="اختر وقت الذهاب من الأزرار" /></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px"><button type="button" class="time-chip" onclick="setVal('inp-time','6:00 صباحاً')">6:00 ص</button><button type="button" class="time-chip" onclick="setVal('inp-time','7:00 صباحاً')">7:00 ص</button><button type="button" class="time-chip" onclick="setVal('inp-time','8:00 صباحاً')">8:00 ص</button><button type="button" class="time-chip" onclick="setVal('inp-time','5:00 مساءً')">5:00 م</button></div>
+          </div>
+          <div id="return-time-fields" class="conditional"><div class="inp-wrap"><span class="inp-icon">🕑</span><input id="inp-return-time" readonly placeholder="اختر وقت العودة من الأزرار" /></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px"><button type="button" class="time-chip" onclick="setVal('inp-return-time','2:00 ظهراً')">2:00 ظ</button><button type="button" class="time-chip" onclick="setVal('inp-return-time','4:00 عصراً')">4:00 ع</button><button type="button" class="time-chip" onclick="setVal('inp-return-time','5:00 مساءً')">5:00 م</button><button type="button" class="time-chip" onclick="setVal('inp-return-time','9:00 مساءً')">9:00 م</button></div></div>
+          <div class="inp-wrap"><span class="inp-icon">👥</span><input id="inp-pax" type="number" min="1" max="10" placeholder="عدد الأشخاص" /></div>
+          <div style="font-size:13px;color:var(--txt2);margin:4px 0 8px">هل لديك أغراض؟ <b style="color:var(--red)">*</b></div>
+          <div class="option-row"><button type="button" class="option-btn" onclick="selectLuggage(this,'نعم')">✅ نعم</button><button type="button" class="option-btn" onclick="selectLuggage(this,'لا')">❌ لا</button></div>
+          <div id="luggage-details" class="conditional"><div class="inp-wrap"><span class="inp-icon">🧳</span><input id="inp-luggage-details" placeholder="اكتب ماذا لديك" /></div></div>
+          <div style="font-size:13px;color:var(--txt2);margin:4px 0 8px">تفضيل السائق <b style="color:var(--red)">*</b></div>
+          <div class="option-row three"><button type="button" class="option-btn" onclick="selectOption(this,'inp-gender','ذكر')">ذكر</button><button type="button" class="option-btn" onclick="selectOption(this,'inp-gender','أنثى')">أنثى</button><button type="button" class="option-btn" onclick="selectOption(this,'inp-gender','لا يهم')">لا يهم</button></div>
+          <input type="hidden" id="inp-gender" />
+          <div style="font-size:13px;color:var(--txt2);margin:4px 0 8px">نوع السيارة <b style="color:var(--red)">*</b></div>
+          <div class="option-row three" id="inp-car"><button type="button" class="option-btn sel" onclick="selectUnifiedCar(this,'سيارة صغيرة')">🚗 صغيرة</button><button type="button" class="option-btn" onclick="selectUnifiedCar(this,'سيارة عائلية')">🚙 عائلية</button><button type="button" class="option-btn" onclick="selectUnifiedCar(this,'لا يهم')">🤷 لا يهم</button></div>
+        </div>
+      </div>
+
+      <div class="form-section" id="sec-monthly">
+        <span class="slabel">🗓️ تفاصيل الرحلة اليومية / الشهرية</span>
+        <div class="card">
+          <div class="inp-wrap"><span class="inp-icon">🏷️</span><input id="inp-schedule-type" readonly /></div>
+          <div class="inp-wrap"><span class="inp-icon">🕐</span><input id="inp-pickup" placeholder="وقت حضور السائق للمنزل" /></div>
+          <div class="inp-wrap"><span class="inp-icon">⏱️</span><input id="inp-wstart" placeholder="وقت بداية الدوام" /></div>
+          <div class="inp-wrap"><span class="inp-icon">⏲️</span><input id="inp-wend" placeholder="وقت انتهاء الدوام" /></div>
+          <div style="font-size:13px;color:var(--txt2);margin:4px 0 8px">الدوام <b style="color:var(--red)">*</b></div>
+          <div class="option-row"><button type="button" class="option-btn" onclick="selectOption(this,'inp-sched','ثابت')">🔒 ثابت</button><button type="button" class="option-btn" onclick="selectOption(this,'inp-sched','شفتات')">🔄 شفتات</button></div>
+          <input type="hidden" id="inp-sched" />
+          <div class="inp-wrap"><span class="inp-icon">📆</span><input id="inp-days" type="number" min="1" max="7" value="5" placeholder="عدد أيام الدوام أسبوعيًا" /></div>
+          <div class="inp-wrap"><span class="inp-icon">👥</span><input id="inp-monthly-pax" type="number" min="1" max="10" value="1" placeholder="عدد الأشخاص" /></div>
+          <div style="font-size:13px;color:var(--txt2);margin:4px 0 8px">تفضيل السائق <b style="color:var(--red)">*</b></div>
+          <div class="option-row three"><button type="button" class="option-btn" onclick="selectOption(this,'inp-monthly-gender','ذكر')">ذكر</button><button type="button" class="option-btn" onclick="selectOption(this,'inp-monthly-gender','أنثى')">أنثى</button><button type="button" class="option-btn" onclick="selectOption(this,'inp-monthly-gender','لا يهم')">لا يهم</button></div><input type="hidden" id="inp-monthly-gender" />
+          <div style="font-size:13px;color:var(--txt2);margin:4px 0 8px">جنسية السائق <b style="color:var(--red)">*</b></div>
+          <div class="option-row three"><button type="button" class="option-btn" onclick="selectOption(this,'inp-nat','سعودي')">🇸🇦 سعودي</button><button type="button" class="option-btn" onclick="selectOption(this,'inp-nat','أجنبي')">🌎 أجنبي</button><button type="button" class="option-btn" onclick="selectOption(this,'inp-nat','لا يهم')">لا يهم</button></div><input type="hidden" id="inp-nat" />
+        </div>
+      </div>
+
+      <div class="form-section" id="sec-parcel-after">
+        <span class="slabel">💳 الدفع والتفضيلات</span>
+        <div class="card">
+          <div style="font-size:13px;color:var(--txt2);margin-bottom:8px">هل الطلب مدفوع؟ <b style="color:var(--red)">*</b></div><div class="option-row"><button type="button" class="option-btn" onclick="selectOption(this,'inp-paid','نعم')">نعم ✅</button><button type="button" class="option-btn" onclick="selectOption(this,'inp-paid','لا')">لا ❌</button></div><input type="hidden" id="inp-paid" />
+          <div class="inp-wrap"><span class="inp-icon">💵</span><input id="inp-cash" inputmode="decimal" placeholder="المبلغ النقدي المطلوب (اكتب 0 إذا لا يوجد)" /></div>
+          <div style="font-size:13px;color:var(--txt2);margin:4px 0 8px">جنس السائق <b style="color:var(--red)">*</b></div><div class="option-row three"><button type="button" class="option-btn" onclick="selectOption(this,'inp-parcel-gender','ذكر')">ذكر</button><button type="button" class="option-btn" onclick="selectOption(this,'inp-parcel-gender','أنثى')">أنثى</button><button type="button" class="option-btn" onclick="selectOption(this,'inp-parcel-gender','لا يهم')">لا يهم</button></div><input type="hidden" id="inp-parcel-gender" />
+          <div style="font-size:13px;color:var(--txt2);margin:4px 0 8px">جنسية السائق <b style="color:var(--red)">*</b></div><div class="option-row three"><button type="button" class="option-btn" onclick="selectOption(this,'inp-parcel-nationality','سعودي')">سعودي</button><button type="button" class="option-btn" onclick="selectOption(this,'inp-parcel-nationality','أجنبي')">أجنبي</button><button type="button" class="option-btn" onclick="selectOption(this,'inp-parcel-nationality','لا يهم')">لا يهم</button></div><input type="hidden" id="inp-parcel-nationality" />
+          <div style="font-size:13px;color:var(--txt2);margin:4px 0 8px">صاحب الطلب <b style="color:var(--red)">*</b></div><div class="option-row"><button type="button" class="option-btn" onclick="selectOption(this,'inp-passenger-gender','ذكر')">ذكر</button><button type="button" class="option-btn" onclick="selectOption(this,'inp-passenger-gender','أنثى')">أنثى</button></div><input type="hidden" id="inp-passenger-gender" />
+        </div>
+      </div>
+
+      <div class="form-section" id="sec-heavy-after">
+        <span class="slabel">📦 تفاصيل النقل الثقيل</span>
+        <div class="card"><div class="inp-wrap"><span class="inp-icon">📦</span><input id="inp-heavy-items" placeholder="ما هي الأغراض أو الحمولة؟" /></div><div style="font-size:13px;color:var(--txt2);margin:4px 0 8px">هل تحتاج عمال؟ <b style="color:var(--red)">*</b></div><div class="option-row"><button type="button" class="option-btn" onclick="selectOption(this,'inp-workers','نعم')">نعم، أحتاج عمال</button><button type="button" class="option-btn" onclick="selectOption(this,'inp-workers','لا')">لا، النقل فقط</button></div><input type="hidden" id="inp-workers" /><div class="inp-wrap"><span class="inp-icon">💰</span><input id="inp-price" inputmode="decimal" placeholder="السعر المبدئي المقترح بالريال" /></div></div>
+      </div>
+
+      <div class="form-section" id="sec-image"><span class="slabel">📸 صورة الطلب أو الأغراض (اختياري)</span><div class="file-wrap"><input id="unified-image" type="file" accept="image/*" onchange="uploadImage(this,'upload-state')" /><div class="upload-state" id="upload-state">يمكنك إرفاق صورة للطرد أو الأغراض</div></div></div>
+      <span class="slabel">📝 ملاحظات إضافية (اختياري)</span><div class="inp-wrap"><span class="inp-icon">💬</span><input id="inp-notes" placeholder="اكتب لا يوجد إذا لا توجد ملاحظات" /></div><div style="height:8px"></div>
+    </div>
+    <div class="bottom"><button class="btn-p" onclick="reviewOrder()">✦ مراجعة الطلب كاملًا ✦</button></div>
+  </div>
 </div>
  
 <!-- ════ DAILY WIZARD ════ -->
@@ -919,6 +1066,18 @@ body{
   </div>
 </div>
  
+<!-- ════ REVIEW SCREEN (مضافة) ════ -->
+<div class="screen" id="s-review">
+  <div class="topbar"><button class="back-btn" onclick="goTo('request')">←</button><div class="logo">📋 مراجعة الطلب</div><div style="width:36px"></div></div>
+  <div class="scroll">
+    <div class="review-ticket" id="ticket-content"></div>
+    <div style="height:12px"></div>
+    <button class="btn-p" onclick="submitOrder()">✦ تأكيد وإرسال ✦</button>
+    <div style="height:8px"></div>
+    <button class="btn-s" onclick="goTo('request')">تعديل البيانات</button>
+  </div>
+</div>
+ 
 <!-- ════ SUCCESS SCREEN ════ -->
 <div class="screen" id="s-success">
   <div style="padding:40px 20px; text-align:center; display:flex; flex-direction:column; height:100%; justify-content:center;">
@@ -933,14 +1092,28 @@ body{
       </p>
     </div>
     <p style="color:var(--txt2); font-size:12px; margin-bottom:30px;">شاكرين صبرك وتعاونك معنا، ونتمنى لك رحلة طيبة 🌹</p>
+    <button class="btn-s" onclick="editOrder()" style="margin-bottom:10px">✏️ تعديل الطلب</button>
     <button class="btn-p" onclick="sendToBot()">العودة للبوت لانتظار العروض 🔙</button>
   </div>
 </div>
 
 </div> <!-- قفلة التطبيق الرئيسية -->
 
+
+<div class="location-modal" id="location-modal" aria-hidden="true">
+  <div class="location-sheet">
+    <div class="location-sheet-head"><span id="location-modal-title">تحديد الموقع</span><button type="button" class="location-close" onclick="closeLocationPicker()">إغلاق</button></div>
+    <div class="location-search"><input id="location-search-input" placeholder="ابحث عن حي أو شارع أو مدينة"><button type="button" onclick="searchLocation()">بحث</button></div>
+    <button type="button" class="gps-btn" id="location-current-btn" onclick="useCurrentLocation()">📍 استخدم موقعي الحالي (GPS)</button>
+    <div id="location-map"></div>
+    <div class="form-help">حرّك الخريطة إلى المكان المطلوب واضغط على الخريطة لوضع العلامة.</div>
+    <button type="button" class="location-confirm" onclick="confirmLocationPicker()">✓ اعتماد هذا الموقع</button>
+  </div>
+</div>
+
 <div id="toast"></div>
  
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script>
 'use strict';
  // 🟢 === بداية كود اليوم الوطني (للحذف لاحقاً) === 🟢
@@ -949,12 +1122,15 @@ function hideSplash() {
   const splash = document.getElementById('nd-splash');
   if (splash) {
     splash.classList.add('hidden');
+    splash.style.display = 'none';
     clearTimeout(splashTimeout);
   }
 }
 document.addEventListener("DOMContentLoaded", () => {
   splashTimeout = setTimeout(hideSplash, 5000);
 });
+// احتياط إضافي: إغلاق الشاشة حتى لو تأخر حدث DOM أو تحميل Telegram
+splashTimeout = setTimeout(hideSplash, 5000);
 // 🔴 === نهاية كود اليوم الوطني === 🔴
  
 const tg = window.Telegram?.WebApp;
@@ -1444,11 +1620,261 @@ function saveProfile(){
   setTimeout(()=>goTo('home'),700);
 }
 
+
+// ── UNIFIED REQUEST FORM ADDITIONS ─────────────────
+const IMGBB_API_KEY = '11c01832d3122fdd375eda927babe5dc';
+let unifiedType = 'trip_urgent';
+let unifiedCar = 'سيارة صغيرة';
+let uploadedImageUrl = '';
+let pickupGPS = null, deliveryGPS = null, locationMap = null, locationMarker = null, locationMode = null, pendingLocation = null;
+const UNIFIED_TITLES = {
+  trip_urgent:'🚕 مشوار فوري', trip_daily:'🗓️ رحلة يومية', trip_monthly:'📅 التزام شهري',
+  trip_parcel:'📦 مندوب توصيل', trip_heavy:'🚚 نقل ثقيل', trip_food:'🍔 طلب طعام', trip_pharmacy:'💊 صيدلية'
+};
+function unifiedAlert(msg){if(tg?.showAlert)tg.showAlert(msg);else alert(msg)}
+function setVal(id,value){const e=document.getElementById(id);if(e)e.value=value}
+function selectOption(el,id,value){el.parentElement.querySelectorAll('.option-btn').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');setVal(id,value)}
+function selectTripDirection(el,value){selectOption(el,'inp-dir',value);document.getElementById('urgent-time-fields').classList.add('active');document.getElementById('return-time-fields').classList.toggle('active',value==='ذهاب وعودة')}
+function selectLuggage(el,value){selectOption(el,'inp-luggage',value);document.getElementById('luggage-details').classList.toggle('active',value==='نعم')}
+function clearUnifiedForm(){
+  const clearIds = [
+    'inp-from','inp-to','inp-content','inp-order-number','inp-pickup',
+    'inp-wstart','inp-wend','inp-days','inp-monthly-pax','inp-cash',
+    'inp-heavy-items','inp-price','inp-notes','inp-time','inp-return-time',
+    'inp-luggage-details','inp-pax'
+  ];
+  clearIds.forEach(function(fieldId){
+    const field = document.getElementById(fieldId);
+    if (field) field.value = '';
+  });
+  const hiddenIds = [
+    'inp-dir','inp-gender','inp-sched','inp-nat','inp-monthly-gender',
+    'inp-paid','inp-parcel-gender','inp-parcel-nationality',
+    'inp-passenger-gender','inp-workers','inp-luggage'
+  ];
+  hiddenIds.forEach(function(fieldId){
+    const field = document.getElementById(fieldId);
+    if (field) field.value = '';
+  });
+  const days = document.getElementById('inp-days');
+  const monthlyPassengers = document.getElementById('inp-monthly-pax');
+  const passengers = document.getElementById('inp-pax');
+  if (days) days.value = '5';
+  if (monthlyPassengers) monthlyPassengers.value = '1';
+  if (passengers) passengers.value = '1';
+  ['urgent-time-fields','return-time-fields','luggage-details'].forEach(function(sectionId){
+    const section = document.getElementById(sectionId);
+    if (section) section.classList.remove('active');
+  });
+  document.querySelectorAll('.option-btn').forEach(function(button){
+    button.classList.remove('sel');
+  });
+  const defaultCar = document.querySelector('#inp-car .option-btn');
+  const defaultHeavy = document.querySelector('#inp-heavy-type .option-btn');
+  if (defaultCar) defaultCar.classList.add('sel');
+  if (defaultHeavy) defaultHeavy.classList.add('sel');
+  uploadedImageUrl = '';
+  const uploadState = document.getElementById('upload-state');
+  const imageInput = document.getElementById('unified-image');
+  if (uploadState) uploadState.textContent = 'يمكنك إرفاق صورة للطرد أو الأغراض';
+  if (imageInput) imageInput.value = '';
+  ST.lat = null;
+  ST.lng = null;
+  pickupGPS = null;
+  deliveryGPS = null;
+  const pickupBtn = document.getElementById('pickup-location-btn');
+  const deliveryBtn = document.getElementById('delivery-location-btn');
+  const pickupText = document.getElementById('pickup-coords');
+  const deliveryText = document.getElementById('delivery-coords');
+  if (pickupBtn) pickupBtn.classList.remove('done');
+  if (deliveryBtn) deliveryBtn.classList.remove('done');
+  if (pickupText) pickupText.textContent = 'مطلوب';
+  if (deliveryText) deliveryText.textContent = 'مطلوب';
+  unifiedCar = 'سيارة صغيرة';
+  unifiedHeavyType = 'دينة';
+  resetGPSBtn('unified-gps-btn','📍 تحديد موقعي الحالي (GPS) — إجباري');
+}
+function openForm(type,title){unifiedType=type;ST.tripType=type;clearUnifiedForm();document.getElementById('unified-title').textContent=title||UNIFIED_TITLES[type]||'طلب جديد';
+  const parcelOnly = ['trip_parcel','trip_food','trip_pharmacy'].includes(type);
+  document.querySelectorAll('.parcel-only-location').forEach(function(el){el.style.display=parcelOnly?'block':'none';});
+  const unifiedGps=document.getElementById('unified-gps-btn');
+  const unifiedGpsHelp=document.getElementById('unified-gps-help');
+  if(unifiedGps) unifiedGps.style.display=parcelOnly?'none':'block';
+  if(unifiedGpsHelp) unifiedGpsHelp.style.display=parcelOnly?'none':'block';
+  document.querySelectorAll('#unified-panel .form-section').forEach(s=>s.classList.remove('active'));let ids=type==='trip_urgent'?['sec-urgent']:['trip_daily','trip_monthly'].includes(type)?['sec-monthly']:type==='trip_heavy'?['sec-heavy-before','sec-heavy-after','sec-image']:['sec-parcel-before','sec-parcel-after','sec-image'];ids.forEach(id=>document.getElementById(id)?.classList.add('active'));if(['trip_daily','trip_monthly'].includes(type))setVal('inp-schedule-type',type==='trip_daily'?'رحلة يومية':'التزام شهري');document.querySelector('#s-request > .topbar').style.display='none';document.querySelector('#s-request > .scroll').style.display='none';document.querySelector('#s-request > .bottom').style.display='none';document.getElementById('unified-panel').classList.add('visible');goTo('request')}
+function openLocationPicker(mode){
+  locationMode = mode;
+  pendingLocation = mode === 'pickup' ? pickupGPS : deliveryGPS;
+  const title = document.getElementById('location-modal-title');
+  const input = document.getElementById('location-search-input');
+  if (title) title.textContent = mode === 'pickup' ? '📍 تحديد موقع استلام الطلب' : '🏁 تحديد موقع تسليم الطلب';
+  if (input) input.value = '';
+  const currentBtn=document.getElementById('location-current-btn');
+  if(currentBtn){currentBtn.disabled=false;currentBtn.textContent='📍 استخدم موقعي الحالي (GPS)';currentBtn.classList.remove('done');}
+  document.getElementById('location-modal').classList.add('open');
+  document.getElementById('location-modal').setAttribute('aria-hidden','false');
+  setTimeout(function(){
+    if (!locationMap) {
+      locationMap = L.map('location-map').setView([24.7136,46.6753], 5);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(locationMap);
+      locationMap.on('click', function(e){ setPendingLocation(e.latlng.lat,e.latlng.lng); });
+    }
+    if (pendingLocation) {
+      locationMap.setView([pendingLocation.lat,pendingLocation.lng],15);
+      setPendingLocation(pendingLocation.lat,pendingLocation.lng);
+    } else {
+      locationMap.setView([24.7136,46.6753],5);
+    }
+    locationMap.invalidateSize();
+  },100);
+}
+function useCurrentLocation(){
+  if(!navigator.geolocation){ unifiedAlert('⚠️ جهازك لا يدعم GPS'); return; }
+  const btn=document.getElementById('location-current-btn');
+  if(btn){btn.disabled=true;btn.textContent='⏳ جاري تحديد موقعك...';}
+  navigator.geolocation.getCurrentPosition(function(position){
+    const lat=position.coords.latitude;
+    const lng=position.coords.longitude;
+    pendingLocation={lat:lat,lng:lng};
+    if(locationMap){locationMap.setView([lat,lng],16);setPendingLocation(lat,lng);}
+    if(btn){btn.disabled=false;btn.textContent='✅ تم تحديد موقعي — اضغط اعتماد';btn.classList.add('done');}
+  },function(){
+    if(btn){btn.disabled=false;btn.textContent='📍 استخدم موقعي الحالي (GPS)';}
+    unifiedAlert('⚠️ تعذر تحديد موقعك. تأكد من تفعيل GPS والسماح بالوصول للموقع.');
+  },{enableHighAccuracy:true,timeout:10000,maximumAge:0});
+}
+
+function setPendingLocation(lat,lng){
+  pendingLocation={lat:Number(lat),lng:Number(lng)};
+  if (locationMarker) locationMarker.setLatLng([pendingLocation.lat,pendingLocation.lng]);
+  else locationMarker=L.marker([pendingLocation.lat,pendingLocation.lng],{draggable:true}).addTo(locationMap);
+  locationMarker.on('dragend',function(e){const p=e.target.getLatLng();setPendingLocation(p.lat,p.lng)});
+}
+function closeLocationPicker(){
+  document.getElementById('location-modal').classList.remove('open');
+  document.getElementById('location-modal').setAttribute('aria-hidden','true');
+  locationMode=null; pendingLocation=null;
+}
+function confirmLocationPicker(){
+  if (!pendingLocation){ unifiedAlert('⚠️ اضغط على الخريطة أو ابحث عن الموقع أولاً'); return; }
+  const savedMode = locationMode;
+  const value={lat:pendingLocation.lat,lng:pendingLocation.lng};
+  if (savedMode==='pickup') pickupGPS=value; else deliveryGPS=value;
+  const btn=document.getElementById(locationMode==='pickup'?'pickup-location-btn':'delivery-location-btn');
+  const text=document.getElementById(locationMode==='pickup'?'pickup-coords':'delivery-coords');
+  if (btn) btn.classList.add('done');
+  if (text) text.textContent=value.lat.toFixed(5)+', '+value.lng.toFixed(5);
+  closeLocationPicker();
+  toast(savedMode==='pickup'?'✅ تم تحديد موقع الاستلام':'✅ تم تحديد موقع التسليم');
+}
+async function searchLocation(){
+  const input=document.getElementById('location-search-input');
+  const query=input?.value.trim();
+  if(!query){unifiedAlert('⚠️ اكتب اسم الحي أو المدينة للبحث');return;}
+  try{
+    const res=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=ar&q='+encodeURIComponent(query));
+    const data=await res.json();
+    if(!data.length){unifiedAlert('⚠️ لم يتم العثور على الموقع');return;}
+    const lat=Number(data[0].lat),lng=Number(data[0].lon);
+    locationMap.setView([lat,lng],15);setPendingLocation(lat,lng);
+  }catch(e){unifiedAlert('⚠️ تعذر البحث عن الموقع حالياً');}
+}
+
+function getGPS(){if(!navigator.geolocation){unifiedAlert('⚠️ جهازك لا يدعم GPS');return}const btn=document.getElementById('unified-gps-btn');btn.textContent='⏳ جاري تحديد موقعك...';btn.disabled=true;navigator.geolocation.getCurrentPosition(p=>{ST.lat=p.coords.latitude;ST.lng=p.coords.longitude;btn.disabled=false;btn.textContent='✅ تم تحديد الموقع بنجاح — اكتب اسم الحي';btn.className='gps-btn done';toast('✅ تم تحديد موقعك بنجاح')},()=>{btn.disabled=false;btn.textContent='📍 تحديد موقعي الحالي (GPS) — إجباري';unifiedAlert('⚠️ تعذر GPS — تأكد من تفعيل الموقع في جهازك')},{timeout:10000,enableHighAccuracy:true})}
+function selectUnifiedCar(el,type){document.querySelectorAll('#inp-car .option-btn').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');unifiedCar=type}
+let unifiedHeavyType='دينة';function selectHeavyType(el,type){document.querySelectorAll('#inp-heavy-type .option-btn').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');unifiedHeavyType=type}
+async function uploadImage(input,textElementId){const file=input.files?.[0];if(!file)return;const state=document.getElementById(textElementId);state.textContent='⏳ جاري رفع الصورة...';try{const form=new FormData();form.append('image',file);const res=await fetch('https://api.imgbb.com/1/upload?key='+IMGBB_API_KEY,{method:'POST',body:form});const data=await res.json();if(!data.success)throw new Error('upload failed');uploadedImageUrl=data.data.url;state.textContent='✅ تم رفع الصورة بنجاح'}catch(e){uploadedImageUrl='';state.textContent='⚠️ تعذر رفع الصورة';unifiedAlert('⚠️ تعذر رفع الصورة حالياً')}}
+function val(id,fallback=''){return document.getElementById(id)?.value.trim()||fallback}function row(icon,label,value){return '<div class="irow"><span>'+icon+'</span><span class="lbl">'+label+'</span><span class="val">'+(value||'غير محدد')+'</span></div>'}
+function reviewOrder(){
+  const parcelType = ['trip_parcel','trip_food','trip_pharmacy'].includes(unifiedType);
+  if(!parcelType && (!ST.lat || !ST.lng)){ unifiedAlert('⚠️ حدد موقعك الحالي GPS أولاً'); return; }
+  const from=val('inp-from'), to=val('inp-to');
+  if(!from || !to){ unifiedAlert('⚠️ اكتب موقع الاستلام والوجهة'); return; }
+  const common={
+    user_id:ST.userId, trip_type:unifiedType,
+    from_location_text:from, to_location_name:to,
+    from_location_gps:ST.lat+','+ST.lng,
+    to_location_gps:null,
+    order_details:val('inp-notes','لا يوجد'), items_photo:uploadedImageUrl||null
+  };
+  if(unifiedType==='trip_urgent'){
+    if(!val('inp-dir') || !val('inp-time') || !val('inp-pax') || !val('inp-luggage') || !val('inp-gender')){
+      unifiedAlert('⚠️ أكمل نوع الرحلة والوقت وعدد الأشخاص والحقائب وتفضيل السائق'); return;
+    }
+    if(val('inp-dir')==='ذهاب وعودة' && !val('inp-return-time')){
+      unifiedAlert('⚠️ أدخل وقت العودة لرحلة ذهاب وعودة'); return;
+    }
+    if(val('inp-luggage')==='نعم' && !val('inp-luggage-details')){
+      unifiedAlert('⚠️ اكتب ماذا لديك من أغراض'); return;
+    }
+    Object.assign(common,{
+      trip_direction:val('inp-dir'), trip_time:val('inp-time'),
+      return_time:val('inp-return-time','لا يوجد'),
+      passengers_count:parseInt(val('inp-pax'),10), has_luggage:val('inp-luggage'),
+      luggage_details:val('inp-luggage-details','لا يوجد'),
+      gender_preference:val('inp-gender'), vehicle_type:unifiedCar
+    });
+  }
+  if(unifiedType==='trip_daily' || unifiedType==='trip_monthly'){
+    if(!val('inp-pickup') || !val('inp-wstart') || !val('inp-wend') || !val('inp-sched') || !val('inp-monthly-gender') || !val('inp-nat')){
+      unifiedAlert('⚠️ أكمل أوقات الدوام ونظام الدوام وتفضيلات السائق والجنسية'); return;
+    }
+    Object.assign(common,{
+      schedule_type:val('inp-schedule-type'), pickup_time:val('inp-pickup'),
+      work_start:val('inp-wstart'), return_time:val('inp-wend'),
+      shift_type:val('inp-sched'), days_count:parseInt(val('inp-days','5'),10),
+      passengers_count:parseInt(val('inp-monthly-pax','1'),10),
+      gender_preference:val('inp-monthly-gender'), driver_nationality:val('inp-nat')
+    });
+  }
+  if(['trip_parcel','trip_food','trip_pharmacy'].includes(unifiedType)){
+    if(['trip_parcel','trip_food','trip_pharmacy'].includes(unifiedType)) {
+      if(!pickupGPS || !deliveryGPS){ unifiedAlert('⚠️ حدد موقع الاستلام وموقع التسليم على الخريطة أولاً'); return; }
+      common.from_location_gps=pickupGPS.lat+','+pickupGPS.lng;
+      common.to_location_gps=deliveryGPS.lat+','+deliveryGPS.lng;
+      common.pickup_location_gps=common.from_location_gps;
+      common.delivery_location_gps=common.to_location_gps;
+    }
+    if(!val('inp-content') || !val('inp-order-number') || !val('inp-paid') || !val('inp-cash') || !val('inp-parcel-gender') || !val('inp-parcel-nationality') || !val('inp-passenger-gender')){
+      unifiedAlert('⚠️ أكمل محتوى الطلب ورقمه والدفع والسيولة والتفضيلات'); return;
+    }
+    Object.assign(common,{
+      parcel_content:val('inp-content'), parcel_order_number:val('inp-order-number'),
+      parcel_is_paid:val('inp-paid'), parcel_cash_needed:val('inp-cash'),
+      gender_preference:val('inp-parcel-gender'), driver_nationality:val('inp-parcel-nationality'),
+      passenger_gender:val('inp-passenger-gender')
+    });
+  }
+  if(unifiedType==='trip_heavy'){
+    if(!val('inp-heavy-items') || !val('inp-workers') || !val('inp-price')){
+      unifiedAlert('⚠️ أكمل الأغراض والعمال والسعر المقترح'); return;
+    }
+    Object.assign(common,{
+      vehicle_type:unifiedHeavyType, heavy_items:val('inp-heavy-items'),
+      needs_workers:val('inp-workers'), initial_price:val('inp-price')
+    });
+  }
+  window.finalPayload=JSON.stringify(common);
+  const skip=['user_id','trip_type','from_location_text','to_location_name','from_location_gps','order_details','items_photo'];
+  const rows=[row('📍','مكان الاستلام',from),row('🏁','مكان التسليم',to),row('🛰️','إحداثيات GPS',common.from_location_gps)];
+  Object.keys(common).forEach(k=>{ if(!skip.includes(k)) rows.push(row('•',k.replaceAll('_',' '),common[k])); });
+  rows.push(row('📸','الصورة',uploadedImageUrl?'مرفقة':'لا توجد'),row('📝','الملاحظات',common.order_details));
+  document.getElementById('ticket-content').innerHTML='<div class="badge-type">'+UNIFIED_TITLES[unifiedType]+'</div>'+rows.join('');
+  goTo('review');
+}
+function submitOrder(){if(!window.finalPayload){unifiedAlert('⚠️ راجع البيانات أولاً');return}goTo('success')}function editOrder(){document.getElementById('unified-panel').classList.add('visible');goTo('request')}
+
+// النسخة المضافة تجعل كل أنواع الطلبات الجديدة تستخدم النموذج الموحد، مع إبقاء الواجهات القديمة محفوظة.
+function goToRequest(type){
+  if(['trip_urgent','trip_daily','trip_monthly','trip_parcel','trip_heavy','trip_food','trip_pharmacy'].includes(type)){openForm(type,UNIFIED_TITLES[type]);return}
+  goTo('request');
+}
+
 // Telegram back button
 tg?.BackButton?.onClick?.(()=>{
   const a=document.querySelector('.screen.active')?.id;
   const map={'s-request':'home','s-daily':'home','s-monthly':'home','s-radar':'home','s-offers':'radar','s-active':'home','s-rating':'home','s-settings':'home'};
-  const t=map[a];if(t)goTo(t);else if(a==='s-home')tg.close();
+  const t=map[a];if(t)goTo(t);else if(a==='s-review')goTo('request');else if(a==='s-success')goTo('home');else if(a==='s-home')tg.close();
 });
 </script>
 </body>
