@@ -404,6 +404,16 @@ body{
       <div style="flex:1"><div style="font-size:13px;font-weight:700">رحلة نشطة</div><div class="pill a" style="margin-top:4px"><span class="blink"></span>جارٍ التنفيذ</div></div>
       <span style="color:var(--gold);font-size:20px">←</span>
     </div>
+   <!-- إعلان إكمال الملف الشخصي -->
+<div id="promo-banner" class="card card-gold" style="display:none; cursor:pointer; padding:12px 16px; margin:0 16px 12px; align-items:center; gap:14px;" onclick="goTo('settings')">
+  <div style="font-size:32px; animation: flt 3s ease-in-out infinite;">🎁</div>
+  <div style="flex:1">
+    <div style="font-size:14px; font-weight:800; color:var(--gold-hi);">أكمل بياناتك واكسب معنا!</div>
+    <div style="font-size:11px; color:var(--txt2); margin-top:4px;">احصل على الأولوية في الطلبات وعروض خاصة عند استكمال ملفك.</div>
+  </div>
+  <div style="color:var(--gold); font-size:18px;">←</div>
+</div>
+
     <div class="stats">
       <div class="stat"><div class="stat-val">47</div><div class="stat-lbl">رحلة مكتملة</div></div>
       <div class="stat"><div class="stat-val">4.9</div><div class="stat-lbl">تقييمك</div></div>
@@ -548,9 +558,17 @@ body{
     <div class="card">
       <div class="inp-wrap"><span class="inp-icon">🧑</span><input id="prof-name" placeholder="الاسم الكامل"></div>
       <div class="inp-wrap"><span class="inp-icon">🔗</span><input id="prof-username" placeholder="يوزر Telegram" readonly></div>
-      <div class="inp-wrap"><span class="inp-icon">📱</span><input id="prof-phone" placeholder="رقم الجوال" inputmode="tel"></div>
-      <div class="inp-wrap" style="margin-bottom:0"><span class="inp-icon">📧</span><input id="prof-email" placeholder="البريد الإلكتروني (اختياري)"></div>
+      <div class="inp-wrap">
+        <span class="inp-icon">📱</span>
+        <input id="prof-phone" placeholder="رقم الجوال (يحتاج توثيق)" readonly>
+        <button type="button" onclick="verifyPhone()" style="background:linear-gradient(135deg,var(--gold-hi),var(--gold)); border:none; padding:7px 12px; border-radius:8px; font-family:'Tajawal'; color:#1A1204; font-weight:800; cursor:pointer; flex-shrink:0;">توثيق</button>
+      </div>
+      <div class="inp-wrap"><span class="inp-icon">📧</span><input id="prof-email" placeholder="البريد الإلكتروني (اختياري)"></div>
+      <div class="inp-wrap"><span class="inp-icon">🌎</span><input id="prof-nationality" placeholder="الجنسية"></div>
+      <div class="inp-wrap"><span class="inp-icon">🏙️</span><input id="prof-city" placeholder="المدينة"></div>
+      <div class="inp-wrap" style="margin-bottom:0"><span class="inp-icon">🏘️</span><input id="prof-neighborhood" placeholder="الحي"></div>
     </div>
+
     <span class="slabel">🎀 تفضيلاتي</span>
     <div class="car-types" style="margin-bottom:6px">
       <div class="ct sel" id="pg-f" onclick="selGender(this,'أنثى')"><span class="ct-icon">👩</span><div class="ct-name">أنثى</div></div>
@@ -1753,26 +1771,60 @@ function hydrateProfileFromTelegram(){
     const img=document.getElementById('avatar-img');
     if(img){img.src=u.photo_url;document.getElementById('avatar-wrap-el')?.classList.add('has-photo');}
   }
-}
-hydrateProfileFromTelegram();
-async function loadSavedProfile(){
+}async function loadSavedProfile(){
   if(!ST.userId)return;
   try{
     const res=await fetch(API+'/passenger_account/'+encodeURIComponent(ST.userId));
     if(!res.ok)return;
-    const profile=(await res.json()).profile||{};
+    const data=await res.json();
+    const profile=data.profile||{};
+    const isNinja = profile.ninja_mode === 'on'; 
+    
     if(profile.name){PROF.name=profile.name;setVal('prof-name',profile.name);document.getElementById('profile-name-display').textContent=profile.name;}
     if(profile.phone && profile.phone!=='غير محدد')setVal('prof-phone',profile.phone);
     if(profile.email)setVal('prof-email',profile.email);
+    if(profile.nationality && profile.nationality!=='غير محدد')setVal('prof-nationality',profile.nationality);
+    if(profile.city && profile.city!=='غير محدد')setVal('prof-city',profile.city);
+    if(profile.neighborhood && profile.neighborhood!=='غير محدد')setVal('prof-neighborhood',profile.neighborhood);
+    
     if(profile.telegram_username){
       PROF.username='@'+String(profile.telegram_username).replace(/^@/,'');
       setVal('prof-username',PROF.username);
       document.getElementById('profile-username-display').textContent='✦ '+PROF.username+' ✦';
     }
     if(profile.gender){PROF.gender=profile.gender;document.querySelectorAll('#s-settings .ct').forEach(c=>c.classList.toggle('sel',c.id==='pg-'+({"أنثى":'f',"ذكر":'m',"لا يهم":'x'}[profile.gender]||'f')))}
+
+    // 🚨 المنطق التسويقي والأمني 🚨
+    const isProfileComplete = (profile.phone && profile.phone !== 'غير محدد' && profile.city && profile.city !== 'غير محدد');
+    
+    if(!isProfileComplete) {
+        if(isNinja) {
+            setTimeout(() => {
+                goTo('settings');
+                unifiedAlert('👋 أهلاً بك يا غالي! الإدارة تتطلب توثيق رقم الجوال واستكمال البيانات للبدء بطلب المشاوير.');
+            }, 600);
+        } else {
+            const banner = document.getElementById('promo-banner');
+            if(banner) {
+                banner.style.display = 'flex';
+                banner.style.animation = 'riseIn 0.5s var(--ease) both';
+            }
+        }
+    } else {
+        const banner = document.getElementById('promo-banner');
+        if(banner) banner.style.display = 'none';
+    }
+
   }catch(e){console.warn('profile load failed',e)}
 }
 loadSavedProfile();
+
+function verifyPhone() {
+  sendAppAction('verify_phone');
+  setTimeout(() => {
+    if(tg) tg.close();
+  }, 300);
+}
 
 function onAvatarChange(e){
   const file = e.target.files && e.target.files[0];
@@ -1865,7 +1917,7 @@ async function showAccountPanel(item){
   }catch(e){content.innerHTML='<div class="account-empty">⚠️ تعذر تحميل البيانات الآن. تأكد من تشغيل مسار API على سيرفر البوت ثم أعد المحاولة.</div><button class="btn-p" onclick="showAccountPanel(\''+item+'\')">إعادة المحاولة</button>'}
 }
 function copyReferralLink(){
-  const link='https://t.me/'+(tg?.initDataUnsafe?.receiver?.username||'');
+  const link='https://t.me/'+(tg?.initDataUnsafe?.receiver?.username||'' );
   navigator.clipboard?.writeText(link).then(()=>toast('✅ تم نسخ رابط الدعوة')).catch(()=>toast('📌 انسخ الرابط من البوت'));
 }
 document.addEventListener('click',()=>closeAccountMenu());
@@ -1875,18 +1927,33 @@ async function saveProfile(){
   PROF.username = tgUser?.username ? '@'+tgUser.username : '';
   PROF.phone = document.getElementById('prof-phone').value.trim();
   PROF.email = document.getElementById('prof-email').value.trim();
+  const nationality = document.getElementById('prof-nationality').value.trim();
+  const city = document.getElementById('prof-city').value.trim();
+  const neighborhood = document.getElementById('prof-neighborhood').value.trim();
+
   if(PROF.name){
     document.getElementById('home-greet').textContent = greeting + '، ' + PROF.name + ' 👋';
     document.getElementById('profile-name-display').textContent = PROF.name;
   }
   try{
-    const res=await fetch(API+'/passenger_account/'+encodeURIComponent(ST.userId),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:PROF.name,username:PROF.username,phone:PROF.phone,email:PROF.email,gender:PROF.gender})});
+    const res=await fetch(API+'/passenger_account/'+encodeURIComponent(ST.userId),{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+            name:PROF.name, username:PROF.username, phone:PROF.phone, 
+            email:PROF.email, gender:PROF.gender, 
+            nationality:nationality, city:city, neighborhood:neighborhood
+        })
+    });
     if(!res.ok)throw Error('profile save '+res.status);
-    toast('✅ تم حفظ بياناتك داخل التطبيق');
+    toast('✅ تم حفظ بياناتك بنجاح');
+    
+    const banner = document.getElementById('promo-banner');
+    if(banner && PROF.phone && city) banner.style.display = 'none';
+    
     setTimeout(()=>goTo('home'),700);
   }catch(e){toast('⚠️ تعذر حفظ البيانات، حاول مرة أخرى');}
 }
-
 
 // ── UNIFIED REQUEST FORM ADDITIONS ─────────────────
 const IMGBB_API_KEY = '11c01832d3122fdd375eda927babe5dc';
