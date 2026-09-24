@@ -1796,11 +1796,10 @@ function hydrateProfileFromTelegram(){
     const img=document.getElementById('avatar-img');
     if(img){img.src=u.photo_url;document.getElementById('avatar-wrap-el')?.classList.add('has-photo');}
   }
-async function loadSavedProfile(){
+}async function loadSavedProfile(){
   if(!ST.userId)return;
-  hydrateProfileFromTelegram();
   try{
-    const res=await fetch(API+'/passenger_account/'+encodeURIComponent(ST.userId),{cache:'no-store'});
+    const res=await fetch(API+'/passenger_account/'+encodeURIComponent(ST.userId));
     if(!res.ok)return;
     const data=await res.json();
     const profile=data.profile||{};
