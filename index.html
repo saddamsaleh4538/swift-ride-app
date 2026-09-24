@@ -319,6 +319,14 @@ body{
 .account-panel-close{background:var(--bg4);border:1px solid rgba(200,164,90,.22);color:var(--txt2);border-radius:9px;padding:5px 9px;font-family:inherit;cursor:pointer}
 .account-data-list{display:grid;gap:8px}.account-data-item{background:var(--bg4);border:1px solid rgba(200,164,90,.08);border-radius:11px;padding:11px 12px;font-size:12px;line-height:1.6}.account-data-item strong{display:block;color:var(--txt);font-size:13px}.account-data-item span{color:var(--txt2)}
 .account-empty{color:var(--txt2);font-size:12px;line-height:1.8;text-align:center;padding:12px 4px}.account-loading{color:var(--gold2);font-size:12px;text-align:center;padding:14px}
+
+/* Access gate: registration is the only visible view when policy requires it. */
+#access-gate{position:fixed;inset:0;z-index:9999;background:linear-gradient(180deg,#0c0c0d,#0a0a0b);display:none;align-items:center;justify-content:center;padding:24px;text-align:center}
+#access-gate.visible{display:flex}
+#access-gate .gate-card{width:100%;max-width:390px;background:linear-gradient(180deg,var(--bg3),var(--bg2));border:1px solid rgba(200,164,90,.3);border-radius:20px;padding:26px 20px;box-shadow:var(--shadow-card)}
+#access-gate h2{color:var(--gold2);font-size:20px;margin-bottom:10px}
+#access-gate p{color:var(--txt2);font-size:13px;line-height:1.8;margin-bottom:18px}
+#access-gate .gate-help{font-size:11px;color:var(--txt3);margin-top:12px}
 </style>
 </head>
 <body>
@@ -464,16 +472,6 @@ body{
         <div class="q-lbl">الخدمات</div>
         <div class="q-sub">اختر الخدمة المناسبة</div>
       </div>
-      <div class="qbtn" onclick="goTo('support')">
-        <span class="q-icon">🎧</span>
-        <div class="q-lbl">الدعم الفني</div>
-        <div class="q-sub">تواصل مع فريق الدعم</div>
-      </div>
-      <div class="qbtn" onclick="goTo('donate')">
-        <span class="q-icon">❤️</span>
-        <div class="q-lbl">ادعمنا</div>
-        <div class="q-sub">ساهم في استمرار الخدمة</div>
-      </div>
       <div class="qbtn" onclick="goTo('training')">
         <span class="q-icon">🚘</span>
         <div class="q-lbl">مدربة قيادة</div>
@@ -508,7 +506,7 @@ body{
 <!-- ════ DONATE SCREEN ════ -->
 <div class="screen" id="s-donate">
   <div class="topbar"><button class="back-btn" onclick="goTo('home')">←</button><div class="logo">❤️ ادعمنا</div><div style="width:36px"></div></div>
-  <div class="scroll"><div class="card card-gold"><div style="font-size:15px;font-weight:800;margin-bottom:6px">شكرًا لدعمك</div><div style="font-size:12px;color:var(--txt2);line-height:1.7">اختر طريقة الدعم، وسيرسل التطبيق طلبك للإدارة لتزويدك بالتفاصيل.</div></div><div class="card"><button class="choice-btn" style="width:100%;margin-bottom:10px" onclick="submitDonation('تحويل بنكي')">💳 دعم عبر تحويل بنكي</button><button class="choice-btn" style="width:100%" onclick="submitDonation('هدايا تيليجرام')">🎁 دعم عبر هدايا تيليجرام</button></div></div>
+  <div class="scroll"><div class="card card-gold"><div style="font-size:15px;font-weight:800;margin-bottom:6px">شكرًا لدعمك</div><div style="font-size:12px;color:var(--txt2);line-height:1.7">اختر طريقة الدعم، وسيرسل التطبيق طلبك للإدارة لتزويدك بالتفاصيل.</div></div><div class="card" id="donation-info" style="display:none"></div><div class="card"><button class="choice-btn" style="width:100%;margin-bottom:10px" onclick="submitDonation('تحويل بنكي')">💳 دعم عبر تحويل بنكي</button><button class="choice-btn" style="width:100%;margin-bottom:10px" onclick="submitDonation('هدايا تيليجرام')">🎁 دعم عبر هدايا تيليجرام</button><button class="choice-btn" style="width:100%" onclick="submitDonation('نجوم Telegram')">⭐ دعم بالنجوم</button></div></div>
 </div>
 
 <!-- ════ TRAINING SCREEN ════ -->
@@ -532,6 +530,8 @@ body{
       <div class="qbtn" onclick="showAccountPanel('favorites')"><span class="q-icon">📌</span><div class="q-lbl">المفضلون</div><div class="q-sub">سائقوك المفضلون</div></div>
       <div class="qbtn" onclick="showAccountPanel('commitments')"><span class="q-icon">🗓️</span><div class="q-lbl">التزاماتي</div><div class="q-sub">اليومي والشهري</div></div>
       <div class="qbtn" onclick="showAccountPanel('wallet')"><span class="q-icon">💰</span><div class="q-lbl">المحفظة</div><div class="q-sub">الرصيد والاشتراك</div></div>
+      <div class="qbtn" onclick="goTo('support')"><span class="q-icon">🎧</span><div class="q-lbl">الدعم الفني</div><div class="q-sub">تواصل مع فريق الدعم</div></div>
+      <div class="qbtn" onclick="goTo('donate')"><span class="q-icon">❤️</span><div class="q-lbl">ادعمنا</div><div class="q-sub">التحويل والهدايا والنجوم</div></div>
     </div>
     <div class="account-panel" id="account-panel">
       <div class="account-panel-head"><span id="account-panel-title">حسابي</span><button class="account-panel-close" onclick="closeAccountPanel()">إغلاق</button></div>
@@ -1219,6 +1219,16 @@ body{
 </div>
 
 </div> <!-- قفلة التطبيق الرئيسية -->
+<div id="access-gate" aria-hidden="true">
+  <div class="gate-card">
+    <div style="font-size:52px;margin-bottom:12px">📝</div>
+    <h2>التسجيل مطلوب</h2>
+    <p>التطبيق مغلق للتسجيل العام حالياً. سجّل اسمك وجنسك وجنسيتك، ثم شارك رقمك من خلال بوت Telegram إذا رغبت بالتوثيق.</p>
+    <button class="btn-p" onclick="openRegistrationGate()">✦ فتح نموذج التسجيل ✦</button>
+    <div class="gate-help">يمكنك العودة للواجهة بعد حفظ البيانات.</div>
+  </div>
+</div>
+
 
 
 <div class="location-modal" id="location-modal" aria-hidden="true">
@@ -1619,17 +1629,32 @@ function submitService(){
   if(!serviceImageUrl && ['عقارات','أثاث','وظائف'].includes(window.selectedService)){unifiedAlert('⚠️ أرفق صورة أو ملفًا للخدمة');return;}
   sendAppAction('service_request',{service_type:window.selectedService,title:title||window.selectedService,details:details,price:price,photos:serviceImageUrl?[serviceImageUrl]:[]});
 }
-async function submitSupport(){
+function submitSupport(){
   const subject=val('support-subject'),message=val('support-message');
   if(!message){unifiedAlert('⚠️ اكتب تفاصيل رسالتك أولاً');return;}
-  try{
-    const res=await fetch(API+'/passenger_support',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:ST.userId,subject:subject||'استفسار دعم',message:message,attachment:supportFileUrl||null})});
-    if(!res.ok)throw Error('support '+res.status);
-    toast('✅ تم إرسال رسالتك للإدارة من داخل التطبيق');
-    document.getElementById('support-message').value='';
-  }catch(e){unifiedAlert('⚠️ تعذر إرسال الرسالة حالياً');}
+  // Use Telegram web_app_data so the passenger bot forwards to the admin bot.
+  // The backend overwrites user_id with message.from_user.id; the client value is not trusted.
+  sendAppAction('support_message',{subject:subject||'استفسار دعم',message:message,attachment:supportFileUrl||''});
+  document.getElementById('support-message').value='';
 }
-function submitDonation(method){sendAppAction('donation_request',{method:method,notes:'طلب دعم عبر التطبيق'});}
+async function submitDonation(method){
+  if(method==='تحويل بنكي'){
+    try{const r=await fetch(API+'/support_settings',{cache:'no-store'});const s=await r.json();const box=document.getElementById('donation-info');
+      if(!s.bank_enabled){unifiedAlert('ℹ️ التحويل البنكي غير متاح حالياً');return;}
+      box.style.display='block';box.innerHTML='<div class="slabel">💳 بيانات التحويل</div><div class="irow"><span class="lbl">المستفيد</span><span class="val">'+escapeAccountHtml(s.account_name||'غير مضاف')+'</span></div><div class="irow"><span class="lbl">البنك</span><span class="val">'+escapeAccountHtml(s.bank_name||'غير مضاف')+'</span></div><div class="irow"><span class="lbl">الآيبان</span><span class="val">'+escapeAccountHtml(s.iban||'غير مضاف')+'</span></div><div style="font-size:12px;color:var(--txt2);line-height:1.7;margin:8px 0">'+escapeAccountHtml(s.instructions||'')+'</div><button class="btn-p" onclick="sendAppAction(\'donation_request\',{method: \'تحويل بنكي\',notes: \'تم التحويل، سيتم إرسال الإيصال من البوت\'})">✅ تم التحويل</button>';
+    }catch(e){unifiedAlert('⚠️ تعذر تحميل بيانات التحويل');}return;
+  }
+  if(method==='هدايا تيليجرام' || method==='نجوم Telegram'){
+    try{const r=await fetch(API+'/support_settings',{cache:'no-store'});const s=await r.json();const box=document.getElementById('donation-info');
+      if(method==='هدايا تيليجرام' && !s.gifts_enabled){unifiedAlert('ℹ️ الهدايا غير متاحة حالياً');return;}
+      if(method==='نجوم Telegram' && !s.stars_enabled){unifiedAlert('ℹ️ النجوم غير متاحة حالياً');return;}
+      const channel=s.channel_url?'<a class="btn-s" style="display:block;text-align:center;text-decoration:none;margin-bottom:8px" href="'+s.channel_url+'" target="_blank">فتح القناة الرسمية</a>':'';
+      const personal=s.personal_url?'<a class="btn-s" style="display:block;text-align:center;text-decoration:none;margin-bottom:8px" href="'+s.personal_url+'" target="_blank">فتح الحساب الشخصي</a>':'';
+      const stars=method==='نجوم Telegram'?'<div class="irow"><span class="lbl">النجوم المقترحة</span><span class="val">'+escapeAccountHtml(s.stars_amounts||'50,100,500,1000')+'</span></div>':'';
+      box.style.display='block';box.innerHTML='<div class="slabel">'+(method==='هدايا تيليجرام'?'🎁 تعليمات الهدايا':'⭐ دعم بالنجوم')+'</div>'+stars+'<div style="font-size:12px;color:var(--txt2);line-height:1.7;margin-bottom:10px">اختر القناة أو الحساب ثم أرسل الهدية أو النجوم من Telegram.</div>'+channel+personal+'<button class="btn-p" onclick="sendAppAction(\'donation_request\',{method: \'"+method+"\',notes: \'تم فتح معلومات الدعم\'})">✅ إبلاغ الإدارة</button>';
+    }catch(e){unifiedAlert('⚠️ تعذر تحميل إعدادات الدعم');}return;
+  }
+}
 function selectTrainingGear(el,value){document.querySelectorAll('#s-training .option-btn').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');setVal('training-gear',value);}
 function submitTraining(){
   const gear=val('training-gear'),city=val('training-city'),hours=val('training-hours'),time=val('training-time'),price=val('training-price');
@@ -1778,7 +1803,7 @@ function hydrateProfileFromTelegram(){
     if(!res.ok)return;
     const data=await res.json();
     const profile=data.profile||{};
-    const isNinja = profile.ninja_mode === 'on'; 
+    const isNinja = profile.ninja_mode === 'on'; // legacy flag; access policy is authoritative 
     
     if(profile.name){PROF.name=profile.name;setVal('prof-name',profile.name);document.getElementById('profile-name-display').textContent=profile.name;}
     if(profile.phone && profile.phone!=='غير محدد')setVal('prof-phone',profile.phone);
@@ -1787,6 +1812,7 @@ function hydrateProfileFromTelegram(){
     if(profile.city && profile.city!=='غير محدد')setVal('prof-city',profile.city);
     if(profile.neighborhood && profile.neighborhood!=='غير محدد')setVal('prof-neighborhood',profile.neighborhood);
     
+    if(profile.photo_url){PROF.photo=profile.photo_url;const img=document.getElementById('avatar-img');if(img){img.src=profile.photo_url;document.getElementById('avatar-wrap-el')?.classList.add('has-photo');}}
     if(profile.telegram_username){
       PROF.username='@'+String(profile.telegram_username).replace(/^@/,'');
       setVal('prof-username',PROF.username);
@@ -1818,6 +1844,40 @@ function hydrateProfileFromTelegram(){
   }catch(e){console.warn('profile load failed',e)}
 }
 loadSavedProfile();
+
+// ── ACCESS POLICY GATE ─────────────────────────────
+let ACCESS = {open:true, allowed:true, needs_registration:false};
+async function loadAccessPolicy(){
+  if(!ST.userId)return;
+  try{
+    const res=await fetch(API+'/passenger_access/'+encodeURIComponent(ST.userId),{cache:'no-store'});
+    if(!res.ok)return;
+    ACCESS=await res.json();
+    const gate=document.getElementById('access-gate');
+    if(ACCESS.needs_registration){
+      gate?.classList.add('visible'); gate?.setAttribute('aria-hidden','false');
+      document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    } else if(gate){ gate.classList.remove('visible'); gate.setAttribute('aria-hidden','true'); }
+  }catch(e){console.warn('access policy unavailable',e)}
+}
+function openRegistrationGate(){
+  document.getElementById('access-gate')?.classList.remove('visible');
+  document.getElementById('access-gate')?.setAttribute('aria-hidden','true');
+  goTo('settings');
+  setTimeout(()=>scrollToProfile(),120);
+}
+const _goTo=goTo;
+goTo=function(id){
+  if(ACCESS.needs_registration && id!=='settings') { openRegistrationGate(); return; }
+  return _goTo(id);
+};
+const _sendAppAction=sendAppAction;
+sendAppAction=function(action,extra={}){
+  if(ACCESS.needs_registration && !['account_update','verify_phone'].includes(action)) { openRegistrationGate(); return; }
+  return _sendAppAction(action,extra);
+};
+loadAccessPolicy();
+
 
 function verifyPhone() {
   sendAppAction('verify_phone');
@@ -1894,8 +1954,14 @@ async function showAccountPanel(item){
     return;
   }
   if(item==='referral'){
-    const u=tgUser?.username?('@'+tgUser.username):'حسابك';
-    content.innerHTML=accountItem('رابط الدعوة','سيتم إنشاء رابط الدعوة المرتبط بـ '+u)+'<button class="btn-p" onclick="copyReferralLink()">نسخ رابط الدعوة</button>';
+    content.innerHTML='<div class="account-loading">⏳ جاري إنشاء رابط دعوتك من البوت...</div>';
+    try{
+      const rr=await fetch(API+'/passenger_referral/'+encodeURIComponent(ST.userId),{cache:'no-store'});
+      const rd=await rr.json();
+      if(!rr.ok || !rd.link) throw Error('referral unavailable');
+      window.referralLink=rd.link;
+      content.innerHTML=accountItem('رابط الدعوة',rd.link)+'<button class="btn-p" onclick="copyReferralLink()">نسخ رابط الدعوة</button><button class="btn-s" onclick="shareReferralLink()">مشاركة الرابط</button>';
+    }catch(e){content.innerHTML='<div class="account-empty">⚠️ تعذر إنشاء رابط الدعوة.</div><button class="btn-p" onclick="showAccountPanel(\'referral\')">إعادة المحاولة</button>';}
     return;
   }
   try{
@@ -1917,8 +1983,15 @@ async function showAccountPanel(item){
   }catch(e){content.innerHTML='<div class="account-empty">⚠️ تعذر تحميل البيانات الآن. تأكد من تشغيل مسار API على سيرفر البوت ثم أعد المحاولة.</div><button class="btn-p" onclick="showAccountPanel(\''+item+'\')">إعادة المحاولة</button>'}
 }
 function copyReferralLink(){
-  const link='https://t.me/'+(tg?.initDataUnsafe?.receiver?.username||'' );
-  navigator.clipboard?.writeText(link).then(()=>toast('✅ تم نسخ رابط الدعوة')).catch(()=>toast('📌 انسخ الرابط من البوت'));
+  const link=window.referralLink;
+  if(!link){toast('⚠️ افتح قسم الدعوة أولاً');return;}
+  navigator.clipboard?.writeText(link).then(()=>toast('✅ تم نسخ رابط الدعوة كاملًا')).catch(()=>toast(link));
+}
+function shareReferralLink(){
+  const link=window.referralLink;
+  if(!link){toast('⚠️ افتح قسم الدعوة أولاً');return;}
+  const url='https://t.me/share/url?url='+encodeURIComponent(link)+'&text='+encodeURIComponent('انضم إلينا عبر رابط الدعوة 🚕');
+  if(tg?.openTelegramLink) tg.openTelegramLink(url); else window.open(url,'_blank');
 }
 document.addEventListener('click',()=>closeAccountMenu());
 
@@ -1930,7 +2003,12 @@ async function saveProfile(){
   const nationality = document.getElementById('prof-nationality').value.trim();
   const city = document.getElementById('prof-city').value.trim();
   const neighborhood = document.getElementById('prof-neighborhood').value.trim();
-
+  const missing=[];
+  if(!PROF.name) missing.push('الاسم الكامل');
+  if(!PROF.gender) missing.push('الجنس');
+  if(!nationality) missing.push('الجنسية');
+  if(!city) missing.push('المدينة');
+  if(missing.length){ unifiedAlert('⚠️ أكمل البيانات المطلوبة: '+missing.join('، ')); return; }
   if(PROF.name){
     document.getElementById('home-greet').textContent = greeting + '، ' + PROF.name + ' 👋';
     document.getElementById('profile-name-display').textContent = PROF.name;
@@ -1940,8 +2018,8 @@ async function saveProfile(){
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({
-            name:PROF.name, username:PROF.username, phone:PROF.phone, 
-            email:PROF.email, gender:PROF.gender, 
+            name:PROF.name, username:(tgUser?.username||''), phone:PROF.phone, 
+            email:PROF.email, gender:PROF.gender, photo_url:(PROF.photo||''),
             nationality:nationality, city:city, neighborhood:neighborhood
         })
     });
