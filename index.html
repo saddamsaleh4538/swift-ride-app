@@ -561,7 +561,7 @@ body{
       <div class="inp-wrap">
         <span class="inp-icon">📱</span>
         <input id="prof-phone" placeholder="رقم الجوال (يحتاج توثيق)" readonly>
-        <button type="button" onclick="verifyPhone()" style="background:linear-gradient(135deg,var(--gold-hi),var(--gold)); border:none; padding:7px 12px; border-radius:8px; font-family:'Tajawal'; color:#1A1204; font-weight:800; cursor:pointer; flex-shrink:0;">توثيق</button>
+        <button id="verify-phone-btn" type="button" onclick="verifyPhone()" style="background:linear-gradient(135deg,var(--gold-hi),var(--gold)); border:none; padding:7px 12px; border-radius:8px; font-family:'Tajawal'; color:#1A1204; font-weight:800; cursor:pointer; flex-shrink:0;">توثيق</button>
       </div>
       <div class="inp-wrap"><span class="inp-icon">📧</span><input id="prof-email" placeholder="البريد الإلكتروني (اختياري)"></div>
       <div class="inp-wrap"><span class="inp-icon">🌎</span><input id="prof-nationality" placeholder="الجنسية"></div>
@@ -1796,17 +1796,18 @@ function hydrateProfileFromTelegram(){
     const img=document.getElementById('avatar-img');
     if(img){img.src=u.photo_url;document.getElementById('avatar-wrap-el')?.classList.add('has-photo');}
   }
-}async function loadSavedProfile(){
+async function loadSavedProfile(){
   if(!ST.userId)return;
+  hydrateProfileFromTelegram();
   try{
-    const res=await fetch(API+'/passenger_account/'+encodeURIComponent(ST.userId));
+    const res=await fetch(API+'/passenger_account/'+encodeURIComponent(ST.userId),{cache:'no-store'});
     if(!res.ok)return;
     const data=await res.json();
     const profile=data.profile||{};
     const isNinja = profile.ninja_mode === 'on'; // legacy flag; access policy is authoritative 
     
     if(profile.name){PROF.name=profile.name;setVal('prof-name',profile.name);document.getElementById('profile-name-display').textContent=profile.name;}
-    if(profile.phone && profile.phone!=='غير محدد')setVal('prof-phone',profile.phone);
+    if(profile.phone && profile.phone!=='غير محدد'){   PROF.phone=profile.phone;   setVal('prof-phone',profile.phone);   const verifyBtn=document.getElementById('verify-phone-btn');   if(verifyBtn)verifyBtn.style.display='none'; }
     if(profile.email)setVal('prof-email',profile.email);
     if(profile.nationality && profile.nationality!=='غير محدد')setVal('prof-nationality',profile.nationality);
     if(profile.city && profile.city!=='غير محدد')setVal('prof-city',profile.city);
@@ -1997,7 +1998,7 @@ document.addEventListener('click',()=>closeAccountMenu());
 
 async function saveProfile(){
   PROF.name = document.getElementById('prof-name').value.trim();
-  PROF.username = tgUser?.username ? '@'+tgUser.username : '';
+  PROF.username = tg?.initDataUnsafe?.user?.username ? '@'+tg.initDataUnsafe.user.username : '';
   PROF.phone = document.getElementById('prof-phone').value.trim();
   PROF.email = document.getElementById('prof-email').value.trim();
   const nationality = document.getElementById('prof-nationality').value.trim();
@@ -2018,7 +2019,7 @@ async function saveProfile(){
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({
-            name:PROF.name, username:(tgUser?.username||''), phone:PROF.phone, 
+            name:PROF.name, username:(tg?.initDataUnsafe?.user?.username||''), phone:PROF.phone, 
             email:PROF.email, gender:PROF.gender, photo_url:(PROF.photo||''),
             nationality:nationality, city:city, neighborhood:neighborhood
         })
